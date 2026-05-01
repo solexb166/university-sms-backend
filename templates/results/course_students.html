@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block title %}{{ course.name }} - Students{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1><i class="fas fa-users"></i> {{ course.name }}</h1>
+    <p>{{ course.course_code }} &bull; {{ course.enrolled_count }} students enrolled</p>
+  </div>
+  <a href="{% url 'results_list' %}" class="btn btn-gold"><i class="fas fa-arrow-left"></i> Back</a>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h5><i class="fas fa-list"></i> Enrolled Students</h5>
+    <button onclick="openModal('resultModal')" class="btn btn-navy btn-sm"><i class="fas fa-plus"></i> Record Result</button>
+  </div>
+  <div class="table-wrapper">
+    <table>
+      <thead><tr><th>#</th><th>Student ID</th><th>Student Name</th><th>Program</th><th>Year</th><th>Marks</th><th>Grade</th><th>Action</th></tr></thead>
+      <tbody>
+        {% for e in enrollments %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td><span class="badge badge-navy">{{ e.student.student_id }}</span></td>
+          <td><strong>{{ e.student.full_name }}</strong></td>
+          <td style="font-size:12px;">{{ e.student.program }}</td>
+          <td>Year {{ e.student.year_of_study }}</td>
+          {% if e.student.id in results_dict %}
+          <td><strong>{{ results_dict|get_item:e.student.id }}%</strong></td>
+          <td><span class="grade-{{ results_dict|get_item:e.student.id }}">{{ results_dict|get_item:e.student.id }}</span></td>
+          {% else %}
+          <td style="color:#aaa;">Not entered</td>
+          <td style="color:#aaa;">-</td>
+          {% endif %}
+          <td>
+            <button onclick="setStudent({{ e.student.id }}, '{{ e.student.full_name }}')" class="btn btn-gold btn-sm">
+              <i class="fas fa-edit"></i> Enter Result
+            </button>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" style="text-align:center; padding:30px; color:#aaa;">No students enrolled in this course yet</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal-overlay" id="resultModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h4><i class="fas fa-medal"></i> Record Result</h4>
+      <button class="modal-close" onclick="closeModal('resultModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <form method="post" action="{% url 'record_result' %}">
+      {% csrf_token %}
+      <input type="hidden" name="course" value="{{ course.id }}">
+      <input type="hidden" name="next" value="course_students">
+      <div class="form-group">
+        <label class="form-label">Student</label>
+        <input type="text" id="studentName" class="form-control" readonly style="background:#f8f9ff;">
+        <input type="hidden" name="student" id="studentId">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Marks (0 - 100) *</label>
+        <input type="number" name="marks" class="form-control" required min="0" max="100" step="0.1" placeholder="e.g. 75.5">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Remarks</label>
+        <textarea name="remarks" class="form-control" rows="2" placeholder="Optional remarks..."></textarea>
+      </div>
+      <button type="submit" class="btn btn-navy" style="width:100%; justify-content:center; padding:12px; font-size:15px;">
+        <i class="fas fa-save"></i> Save Result
+      </button>
+    </form>
+  </div>
+</div>
+
+<script>
+function setStudent(id, name) {
+  document.getElementById('studentId').value = id;
+  document.getElementById('studentName').value = name;
+  openModal('resultModal');
+}
+</script>
+{% endblock %}

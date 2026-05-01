@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block title %}Exam Office Dashboard{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1><i class="fas fa-file-alt"></i> Exam Office Dashboard</h1>
+    <p>Manage exam clearance and dockets — 2025/2026</p>
+  </div>
+</div>
+
+<div class="grid-4 mb-4">
+  <div class="stat-card">
+    <div class="stat-icon" style="background:rgba(13,27,94,0.1);"><i class="fas fa-users" style="color:var(--navy); font-size:22px;"></i></div>
+    <div class="stat-info"><div class="value text-navy">{{ total_students }}</div><div class="label">Total Students</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background:rgba(46,125,50,0.1);"><i class="fas fa-check-circle" style="color:var(--success); font-size:22px;"></i></div>
+    <div class="stat-info"><div class="value" style="color:var(--success);">{{ cleared_count }}</div><div class="label">Exam Cleared (100%)</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background:rgba(198,40,40,0.1);"><i class="fas fa-times-circle" style="color:var(--danger); font-size:22px;"></i></div>
+    <div class="stat-info"><div class="value" style="color:var(--danger);">{{ not_cleared_count }}</div><div class="label">Not Cleared</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background:rgba(201,168,76,0.15);"><i class="fas fa-file-alt" style="color:var(--gold); font-size:22px;"></i></div>
+    <div class="stat-info"><div class="value" style="color:var(--gold);">{{ dockets_generated }}</div><div class="label">Dockets Generated</div></div>
+  </div>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <div class="card-header"><h5><i class="fas fa-list"></i> Clearance Lists</h5></div>
+    <div class="card-body">
+      <p style="color:#aaa; font-size:13px; margin-bottom:16px;">View students cleared for each assessment</p>
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <a href="{% url 'clearance_list' %}?type=enrollment" class="btn btn-navy" style="justify-content:space-between;">
+          <span><i class="fas fa-user-check"></i> Enrollment List (30%)</span>
+          <i class="fas fa-arrow-right"></i>
+        </a>
+        <a href="{% url 'clearance_list' %}?type=cat1" class="btn btn-navy" style="justify-content:space-between;">
+          <span><i class="fas fa-clipboard-check"></i> CAT 1 Clearance (50%)</span>
+          <i class="fas fa-arrow-right"></i>
+        </a>
+        <a href="{% url 'clearance_list' %}?type=cat2" class="btn btn-navy" style="justify-content:space-between;">
+          <span><i class="fas fa-clipboard-check"></i> CAT 2 Clearance (75%)</span>
+          <i class="fas fa-arrow-right"></i>
+        </a>
+        <a href="{% url 'clearance_list' %}?type=exam" class="btn btn-gold" style="justify-content:space-between;">
+          <span><i class="fas fa-star"></i> Exam Clearance (100%)</span>
+          <i class="fas fa-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h5><i class="fas fa-file-alt"></i> Generate Exam Dockets</h5></div>
+    <div class="card-body">
+      <p style="color:#aaa; font-size:13px; margin-bottom:16px;">
+        Generate exam dockets for all students who have paid 100% of their tuition.
+        Currently <strong style="color:var(--success);">{{ cleared_count }} students</strong> are cleared for exams.
+      </p>
+      <div class="alert alert-info" style="margin-bottom:16px;">
+        <i class="fas fa-info-circle"></i>
+        Only students with 100% payment will receive dockets.
+      </div>
+      <form method="post" action="{% url 'generate_dockets' %}">
+        {% csrf_token %}
+        <div class="form-group">
+          <label class="form-label">Semester</label>
+          <select name="semester" class="form-control">
+            <option value="1">Semester 1</option>
+            <option value="2">Semester 2</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-gold" style="width:100%; justify-content:center; padding:12px; font-size:15px;">
+          <i class="fas fa-file-alt"></i> Generate All Exam Dockets
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block title %}My Courses{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1><i class="fas fa-book-open"></i> My Courses</h1><p>Your module registrations for 2025/2026</p></div>
+  <a href="{% url 'select_modules' %}" class="btn btn-gold"><i class="fas fa-plus"></i> Register Modules</a>
+</div>
+
+{% if enrollments %}
+<div class="card mb-4">
+  <div class="card-header">
+    <h5><i class="fas fa-check-circle" style="color:var(--success);"></i> Enrolled Modules</h5>
+  </div>
+  <div class="table-wrapper">
+    <table>
+      <thead><tr><th>#</th><th>Code</th><th>Module Name</th><th>Lecturer</th><th>Credits</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for e in enrollments %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td><span class="badge badge-navy">{{ e.course.course_code }}</span></td>
+          <td><strong>{{ e.course.name }}</strong></td>
+          <td>{{ e.course.lecturer.full_name|default:"TBA" }}</td>
+          <td>{{ e.course.credits }}</td>
+          <td><span class="badge badge-success"><i class="fas fa-check"></i> Enrolled</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+<div style="display:flex; gap:12px; margin-bottom:24px;">
+  <a href="{% url 'proof_of_registration' %}" class="btn btn-navy">
+    <i class="fas fa-print"></i> Print Proof of Registration
+  </a>
+  <a href="{% url 'my_exam_docket' %}" class="btn btn-gold">
+    <i class="fas fa-file-alt"></i> View Exam Docket
+  </a>
+</div>
+{% endif %}
+
+{% if selections %}
+<div class="card">
+  <div class="card-header">
+    <h5><i class="fas fa-clock" style="color:var(--warning);"></i> Pending Module Selections (Awaiting Payment)</h5>
+  </div>
+  <div class="alert alert-warning" style="margin:16px; margin-bottom:0;">
+    <i class="fas fa-exclamation-triangle"></i>
+    These modules are selected but not yet confirmed. Pay at least 30% of your tuition to enroll.
+    <a href="{% url 'my_fees' %}" class="btn btn-gold btn-sm" style="margin-left:10px;">View Fees</a>
+  </div>
+  <div class="table-wrapper">
+    <table>
+      <thead><tr><th>#</th><th>Code</th><th>Module Name</th><th>Credits</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for s in selections %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td><span class="badge badge-gold">{{ s.course.course_code }}</span></td>
+          <td><strong>{{ s.course.name }}</strong></td>
+          <td>{{ s.course.credits }}</td>
+          <td><span class="badge badge-warning"><i class="fas fa-clock"></i> Pending</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+{% if not enrollments and not selections %}
+<div class="card">
+  <div class="card-body" style="text-align:center; padding:40px;">
+    <i class="fas fa-book-open" style="font-size:48px; color:#ddd;"></i>
+    <p style="margin-top:16px; color:#aaa; font-size:16px;">You have not registered any modules yet.</p>
+    <a href="{% url 'select_modules' %}" class="btn btn-navy" style="margin-top:12px;">
+      <i class="fas fa-plus"></i> Register Modules Now
+    </a>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

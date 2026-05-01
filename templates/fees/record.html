@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block title %}Record Payment{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1><i class="fas fa-plus"></i> Record Fee Payment</h1><p>Record a new student payment</p></div>
+  <a href="{% url 'fees_list' %}" class="btn btn-gold"><i class="fas fa-arrow-left"></i> Back</a>
+</div>
+<div class="card" style="max-width:600px;">
+  <div class="card-header"><h5><i class="fas fa-wallet"></i> Payment Details</h5></div>
+  <div class="card-body">
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-group">
+        <label class="form-label">Student *</label>
+        <select name="student" class="form-control" required>
+          <option value="">Select Student</option>
+          {% for s in students %}
+          <option value="{{ s.id }}" {% if request.GET.student == s.id|stringformat:"s" %}selected{% endif %}>
+            {{ s.student_id }} - {{ s.full_name }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="grid-2">
+        <div class="form-group">
+          <label class="form-label">Amount Paid (UGX) *</label>
+          <input type="number" name="amount_paid" class="form-control" required placeholder="e.g. 500000">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Receipt Number *</label>
+          <input type="text" name="receipt_number" class="form-control" required placeholder="e.g. RCP001">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Remaining Balance (UGX) *</label>
+          <input type="number" name="balance" class="form-control" required placeholder="e.g. 200000">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Payment Method *</label>
+          <select name="payment_method" class="form-control" required>
+            <option value="mobile_money">Mobile Money</option>
+            <option value="bank">Bank Transfer</option>
+            <option value="cash">Cash</option>
+            <option value="cheque">Cheque</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Semester</label>
+          <select name="semester" class="form-control">
+            <option value="1">Semester 1</option>
+            <option value="2">Semester 2</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes</label>
+        <textarea name="notes" class="form-control" rows="3" placeholder="Optional notes..."></textarea>
+      </div>
+      <button type="submit" class="btn btn-navy" style="width:100%; justify-content:center; padding:12px; font-size:15px; margin-top:8px;">
+        <i class="fas fa-save"></i> Record Payment
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}

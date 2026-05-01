@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block title %}{{ student.full_name }}{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1><i class="fas fa-user-graduate"></i> {{ student.full_name }}</h1>
+    <p>{{ student.student_id }} &bull; {{ student.program }}</p>
+  </div>
+  <a href="{% url 'students_list' %}" class="btn btn-gold"><i class="fas fa-arrow-left"></i> Back</a>
+</div>
+<div class="grid-2">
+  <div>
+    <div class="card">
+      <div class="card-header"><h5><i class="fas fa-id-card"></i> Student Profile</h5></div>
+      <div class="card-body">
+        <table style="width:100%;">
+          <tr><td style="color:#aaa; font-size:12px; padding:6px 0;">Student ID</td><td><strong>{{ student.student_id }}</strong></td></tr>
+          <tr><td style="color:#aaa; font-size:12px; padding:6px 0;">Full Name</td><td>{{ student.full_name }}</td></tr>
+          <tr><td style="color:#aaa; font-size:12px; padding:6px 0;">Program</td><td>{{ student.program }}</td></tr>
+          <tr><td style="color:#aaa; font-size:12px; padding:6px 0;">Department</td><td>{{ student.department.name|default:"N/A" }}</td></tr>
+          <tr><td style="color:#aaa; font-size:12px; padding:6px 0;">Year</td><td>Year {{ student.year_of_study }}</td></tr>
+          <tr><td style="color:#aaa; font-size:12px; padding:6px 0;">Gender</td><td>{{ student.gender|default:"N/A" }}</td></tr>
+          <tr><td style="color:#aaa; font-size:12px; padding:6px 0;">Admitted</td><td>{{ student.admission_date }}</td></tr>
+          <tr><td style="color:#aaa; font-size:12px; padding:6px 0;">Username</td><td>{{ student.user.username }}</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h5><i class="fas fa-wallet"></i> Fee Summary</h5></div>
+      <div class="card-body">
+        <div style="font-size:28px; font-weight:800; color:var(--success);">UGX {{ total_paid|floatformat:0 }}</div>
+        <div style="color:#aaa; font-size:13px;">Total Paid</div>
+      </div>
+    </div>
+  </div>
+  <div>
+    <div class="card">
+      <div class="card-header"><h5><i class="fas fa-book"></i> Enrolled Courses</h5></div>
+      <div class="card-body" style="padding:0;">
+        <table style="width:100%;">
+          {% for e in enrollments %}
+          <tr style="border-bottom:1px solid #f0f2f8;">
+            <td style="padding:10px 16px;">
+              <div style="font-weight:600; font-size:13px;">{{ e.course.name }}</div>
+              <div style="color:#aaa; font-size:12px;">{{ e.course.course_code }}</div>
+            </td>
+            <td style="padding:10px 16px; text-align:right;"><span class="badge badge-success">{{ e.status }}</span></td>
+          </tr>
+          {% empty %}
+          <tr><td style="padding:20px; color:#aaa; text-align:center;">No courses enrolled</td></tr>
+          {% endfor %}
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h5><i class="fas fa-medal"></i> Results</h5></div>
+      <div class="card-body" style="padding:0;">
+        <table style="width:100%;">
+          {% for r in results %}
+          <tr style="border-bottom:1px solid #f0f2f8;">
+            <td style="padding:10px 16px;">
+              <div style="font-weight:600; font-size:13px;">{{ r.course.name }}</div>
+              <div style="color:#aaa; font-size:12px;">{{ r.course.course_code }}</div>
+            </td>
+            <td style="padding:10px 16px; text-align:right;">
+              <span class="grade-{{ r.grade }}">{{ r.grade }}</span>
+              <span style="font-size:12px; color:#aaa; margin-left:6px;">{{ r.marks }}%</span>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td style="padding:20px; color:#aaa; text-align:center;">No results recorded</td></tr>
+          {% endfor %}
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}My Results{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1><i class="fas fa-star"></i> My Results</h1><p>Your academic results and transcript</p></div>
+  {% if average %}<div style="background:rgba(255,255,255,0.15); color:white; padding:8px 16px; border-radius:12px;">Average: <strong>{{ average|floatformat:1 }}%</strong></div>{% endif %}
+</div>
+<div class="card">
+  <div class="card-header"><h5><i class="fas fa-medal"></i> Academic Results</h5></div>
+  <div class="table-wrapper">
+    <table>
+      <thead><tr><th>#</th><th>Course</th><th>Code</th><th>Marks</th><th>Grade</th><th>Remarks</th></tr></thead>
+      <tbody>
+        {% for r in results %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td><strong>{{ r.course.name }}</strong></td>
+          <td><span class="badge badge-navy">{{ r.course.course_code }}</span></td>
+          <td>{{ r.marks }}%</td>
+          <td><span class="grade-{{ r.grade }}" style="font-size:18px;">{{ r.grade }}</span></td>
+          <td style="color:#aaa; font-size:12px;">{{ r.remarks|default:"-" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" style="text-align:center; padding:30px; color:#aaa;">No results available yet</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

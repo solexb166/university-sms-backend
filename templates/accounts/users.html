@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% block title %}User Management{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1><i class="fas fa-users-cog"></i> User Management</h1><p>Manage all system user accounts</p></div>
+  <button onclick="openModal('createUserModal')" class="btn btn-gold"><i class="fas fa-user-plus"></i> Create User</button>
+</div>
+
+<div class="card">
+  <div class="card-header"><h5><i class="fas fa-list"></i> System Users ({{ users.count }})</h5></div>
+  <div class="table-wrapper">
+    <table>
+      <thead><tr><th>#</th><th>Username</th><th>Full Name</th><th>Email</th><th>Role</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td><strong>@{{ u.username }}</strong></td>
+          <td>{{ u.get_full_name|default:"-" }}</td>
+          <td style="font-size:12px; color:#aaa;">{{ u.email|default:"-" }}</td>
+          <td>
+            {% if u.role == 'admin' %}<span class="badge badge-danger">Administrator</span>
+            {% elif u.role == 'registry' %}<span class="badge badge-navy">Registry Staff</span>
+            {% elif u.role == 'finance' %}<span class="badge badge-warning">Finance Staff</span>
+            {% elif u.role == 'lecturer' %}<span class="badge badge-success">Lecturer</span>
+            {% elif u.role == 'exam_office' %}<span class="badge badge-gold">Exam Office</span>
+            {% else %}<span class="badge badge-navy">Student</span>{% endif %}
+          </td>
+          <td>{% if u.is_active %}<span class="badge badge-success">Active</span>{% else %}<span class="badge badge-danger">Inactive</span>{% endif %}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" style="text-align:center; padding:30px; color:#aaa;">No users found</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal-overlay" id="createUserModal">
+  <div class="modal-box" style="max-width:550px;">
+    <div class="modal-header">
+      <h4><i class="fas fa-user-plus"></i> Create New User</h4>
+      <button class="modal-close" onclick="closeModal('createUserModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <form method="post" action="{% url 'create_user' %}">
+      {% csrf_token %}
+      <div class="grid-2">
+        <div class="form-group">
+          <label class="form-label">First Name *</label>
+          <input type="text" name="first_name" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Last Name *</label>
+          <input type="text" name="last_name" class="form-control" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Username *</label>
+        <input type="text" name="username" class="form-control" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" name="email" class="form-control">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password *</label>
+        <input type="password" name="password" class="form-control" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Role *</label>
+        <select name="role" class="form-control" required id="roleSelect" onchange="toggleLecturerFields()">
+          <option value="registry">Registry Staff</option>
+          <option value="finance">Finance Staff</option>
+          <option value="lecturer">Lecturer</option>
+          <option value="exam_office">Exam Office</option>
+          <option value="admin">Administrator</option>
+        </select>
+      </div>
+
+      <!-- Lecturer specific fields -->
+      <div id="lecturerFields" style="display:none; background:var(--background); border-radius:10px; padding:16px; margin-bottom:12px;">
+        <div style="font-weight:700; color:var(--navy); margin-bottom:12px; font-size:13px;"><i class="fas fa-chalkboard-teacher"></i> Lecturer Details</div>
+        <div class="form-group">
+          <label class="form-label">Department</label>
+          <select name="department" class="form-control">
+            <option value="">Select Department</option>
+            {% for course in courses %}
+            {% if forloop.first or course.department != courses|slice:":forloop.counter0"|last.department %}
+            <option value="{{ course.department.id }}">{{ course.department.name }}</option>
+            {% endif %}
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Specialization</label>
+          <input type="text" name="specialization" class="form-control" placeholder="e.g. Software Engineering">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Assign Courses</label>
+          <div style="max-height:180px; overflow-y:auto; border:2px solid #e0e4ef; border-radius:10px; padding:10px;">
+            {% for course in courses %}
+            <label style="display:flex; align-items:center; gap:8px; padding:6px; cursor:pointer; border-radius:6px;" onmouseover="this.style.background='#f0f2f8'" onmouseout="this.style.background='transparent'">
+              <input type="checkbox" name="courses" value="{{ course.id }}">
+              <span style="font-size:13px;"><strong>{{ course.course_code }}</strong> — {{ course.name }}</span>
+            </label>
+            {% empty %}
+            <p style="color:#aaa; font-size:13px; text-align:center; padding:10px;">No courses available. Create courses first.</p>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-navy" style="width:100%; justify-content:center; padding:12px; font-size:15px; margin-top:8px;">
+        <i class="fas fa-save"></i> Create User
+      </button>
+    </form>
+  </div>
+</div>
+
+<script>
+function toggleLecturerFields() {
+  var role = document.getElementById('roleSelect').value;
+  document.getElementById('lecturerFields').style.display = role === 'lecturer' ? 'block' : 'none';
+}
+</script>
+{% endblock %}

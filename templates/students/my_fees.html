@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% block title %}My Fees{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1><i class="fas fa-money-bill"></i> My Fee Payments</h1><p>Your tuition fee payment history and balance</p></div>
+  <a href="{% url 'submit_payment' %}" class="btn btn-gold"><i class="fas fa-plus"></i> Submit Payment</a>
+</div>
+
+{% if student %}
+<div class="grid-2 mb-4">
+  <div class="stat-card">
+    <div class="stat-icon" style="background:rgba(46,125,50,0.1);"><i class="fas fa-check-circle" style="color:var(--success); font-size:22px;"></i></div>
+    <div class="stat-info">
+      <div class="value" style="color:var(--success);">{{ student.currency }} {{ total_paid|floatformat:0 }}</div>
+      <div class="label">Total Paid</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background:rgba(198,40,40,0.1);"><i class="fas fa-exclamation-circle" style="color:var(--danger); font-size:22px;"></i></div>
+    <div class="stat-info">
+      <div class="value" style="color:var(--danger);">{{ student.currency }} {{ balance|floatformat:0 }}</div>
+      <div class="label">Outstanding Balance</div>
+    </div>
+  </div>
+</div>
+
+<!-- Payment Progress -->
+<div class="card mb-4">
+  <div class="card-header"><h5><i class="fas fa-chart-line"></i> Payment Progress</h5></div>
+  <div class="card-body">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+      <span style="font-size:14px; color:#aaa;">Progress towards full payment</span>
+      <span style="font-size:16px; font-weight:700; color:var(--navy);">{{ payment_percentage|floatformat:1 }}%</span>
+    </div>
+    <div style="background:#f0f2f8; border-radius:20px; height:14px; overflow:hidden; position:relative;">
+      <div style="background:linear-gradient(90deg, var(--navy), var(--gold)); height:100%; width:{{ payment_percentage|floatformat:0 }}%; border-radius:20px; transition:width 0.5s;"></div>
+    </div>
+    <div style="display:flex; justify-content:space-between; margin-top:14px; flex-wrap:wrap; gap:8px;">
+      <div style="text-align:center; padding:8px 12px; border-radius:10px; {% if student.is_enrolled %}background:rgba(46,125,50,0.1);{% else %}background:#f0f2f8;{% endif %}">
+        <div style="font-size:11px; {% if student.is_enrolled %}color:var(--success);{% else %}color:#aaa;{% endif %}">
+          <i class="fas fa-{% if student.is_enrolled %}check{% else %}times{% endif %}-circle"></i> Enrolled
+        </div>
+        <div style="font-size:10px; color:#aaa;">30%</div>
+      </div>
+      <div style="text-align:center; padding:8px 12px; border-radius:10px; {% if student.cat1_cleared %}background:rgba(46,125,50,0.1);{% else %}background:#f0f2f8;{% endif %}">
+        <div style="font-size:11px; {% if student.cat1_cleared %}color:var(--success);{% else %}color:#aaa;{% endif %}">
+          <i class="fas fa-{% if student.cat1_cleared %}check{% else %}times{% endif %}-circle"></i> CAT 1
+        </div>
+        <div style="font-size:10px; color:#aaa;">50%</div>
+      </div>
+      <div style="text-align:center; padding:8px 12px; border-radius:10px; {% if student.cat2_cleared %}background:rgba(46,125,50,0.1);{% else %}background:#f0f2f8;{% endif %}">
+        <div style="font-size:11px; {% if student.cat2_cleared %}color:var(--success);{% else %}color:#aaa;{% endif %}">
+          <i class="fas fa-{% if student.cat2_cleared %}check{% else %}times{% endif %}-circle"></i> CAT 2
+        </div>
+        <div style="font-size:10px; color:#aaa;">75%</div>
+      </div>
+      <div style="text-align:center; padding:8px 12px; border-radius:10px; {% if student.exam_cleared %}background:rgba(46,125,50,0.1);{% else %}background:#f0f2f8;{% endif %}">
+        <div style="font-size:11px; {% if student.exam_cleared %}color:var(--success);{% else %}color:#aaa;{% endif %}">
+          <i class="fas fa-{% if student.exam_cleared %}check{% else %}times{% endif %}-circle"></i> Exam
+        </div>
+        <div style="font-size:10px; color:#aaa;">100%</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Pending Submissions -->
+{% if submissions %}
+<div class="card mb-4">
+  <div class="card-header"><h5><i class="fas fa-clock" style="color:var(--warning);"></i> Payment Submissions</h5></div>
+  <div class="table-wrapper">
+    <table>
+      <thead><tr><th>Bank</th><th>Reference</th><th>Amount</th><th>Submitted</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for s in submissions %}
+        <tr>
+          <td>{{ s.get_bank_name_display }}</td>
+          <td><span class="badge badge-navy">{{ s.bank_reference }}</span></td>
+          <td><strong>{{ s.currency }} {{ s.amount_paid|floatformat:0 }}</strong></td>
+          <td style="font-size:12px; color:#aaa;">{{ s.date_submitted|date:"d M Y H:i" }}</td>
+          <td>
+            {% if s.status == 'pending' %}
+            <span class="badge badge-warning"><i class="fas fa-clock"></i> Pending</span>
+            {% elif s.status == 'approved' %}
+            <span class="badge badge-success"><i class="fas fa-check"></i> Approved</span>
+            {% else %}
+            <span class="badge badge-danger"><i class="fas fa-times"></i> Rejected</span>
+            {% if s.rejection_reason %}
+            <div style="font-size:11px; color:var(--danger); margin-top:3px;">{{ s.rejection_reason }}</div>
+            {% endif %}
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+<!-- Payment History -->
+<div class="card">
+  <div class="card-header"><h5><i class="fas fa-history"></i> Approved Payment History</h5></div>
+  <div class="table-wrapper">
+    <table>
+      <thead><tr><th>#</th><th>Receipt No</th><th>Amount</th><th>Method</th><th>Semester</th><th>Date</th><th>Balance</th></tr></thead>
+      <tbody>
+        {% for p in payments %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td><span class="badge badge-navy">{{ p.receipt_number }}</span></td>
+          <td><strong>{{ student.currency }} {{ p.amount_paid|floatformat:0 }}</strong></td>
+          <td>{{ p.get_payment_method_display }}</td>
+          <td>Semester {{ p.semester }}</td>
+          <td style="font-size:12px; color:#aaa;">{{ p.payment_date|date:"d M Y" }}</td>
+          <td style="color:var(--danger);">{{ student.currency }} {{ p.balance|floatformat:0 }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" style="text-align:center; padding:30px; color:#aaa;">No approved payments yet</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

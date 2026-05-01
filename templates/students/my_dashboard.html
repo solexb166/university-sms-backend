@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+{% block title %}My Dashboard{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <h1><i class="fas fa-th-large"></i> Student Portal</h1>
+    <p>Welcome back, {{ user.get_full_name|default:user.username }}</p>
+  </div>
+  <span style="background:rgba(255,255,255,0.15); color:white; padding:6px 14px; border-radius:20px; font-size:12px;">
+    2025/2026 Academic Year
+  </span>
+</div>
+
+{% if student %}
+
+<!-- Profile + Stats Row -->
+<div class="grid-2 mb-4" style="align-items:start;">
+
+  <!-- Profile Card -->
+  <div class="card">
+    <div class="card-body" style="text-align:center; padding:24px;">
+      <div style="position:relative; display:inline-block; margin-bottom:16px;">
+        {% if student.photo %}
+        <img src="{{ student.photo.url }}" style="width:100px; height:100px; border-radius:50%; object-fit:cover; border:4px solid var(--gold);">
+        {% else %}
+        <div style="width:100px; height:100px; border-radius:50%; background:var(--navy); display:flex; align-items:center; justify-content:center; margin:0 auto; border:4px solid var(--gold);">
+          <span style="font-size:40px; font-weight:700; color:white;">{{ student.full_name|slice:":1" }}</span>
+        </div>
+        {% endif %}
+        <label for="photoUpload" style="position:absolute; bottom:0; right:0; width:30px; height:30px; background:var(--gold); border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer;">
+          <i class="fas fa-camera" style="font-size:13px; color:var(--navy);"></i>
+        </label>
+        <form method="post" action="{% url 'upload_photo' %}" enctype="multipart/form-data" id="photoForm">
+          {% csrf_token %}
+          <input type="file" id="photoUpload" name="photo" accept="image/*" style="display:none;" onchange="document.getElementById('photoForm').submit()">
+        </form>
+      </div>
+      <div style="font-size:18px; font-weight:700; color:var(--navy);">{{ student.full_name }}</div>
+      <div style="font-size:13px; color:#aaa; margin-top:4px;">{{ student.student_id }}</div>
+      <div style="font-size:13px; color:#aaa;">{{ student.program }}</div>
+      <div style="margin-top:12px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
+        <span class="badge badge-navy">Year {{ student.year_of_study }}</span>
+        <span class="badge badge-gold">{{ student.get_student_type_display }}</span>
+        <span class="badge badge-navy">{{ student.get_mode_of_study_display }}</span>
+      </div>
+      {% if not student.photo %}
+      <p style="font-size:11px; color:#aaa; margin-top:12px;">
+        <i class="fas fa-info-circle"></i> Click the camera icon to upload your photo
+      </p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div>
+    <div class="stat-card mb-3">
+      <div class="stat-icon" style="background:rgba(13,27,94,0.1);"><i class="fas fa-book-open" style="color:var(--navy); font-size:22px;"></i></div>
+      <div class="stat-info"><div class="value text-navy">{{ enrollments|length }}</div><div class="label">Enrolled Modules</div></div>
+    </div>
+    <div class="stat-card mb-3">
+      <div class="stat-icon" style="background:rgba(201,168,76,0.15);"><i class="fas fa-star" style="color:var(--gold); font-size:22px;"></i></div>
+      <div class="stat-info">
+        <div class="value" style="color:var(--gold)">{% if avg_marks %}{{ avg_marks|floatformat:1 }}%{% else %}N/A{% endif %}</div>
+        <div class="label">Average Marks</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:rgba(198,40,40,0.1);"><i class="fas fa-wallet" style="color:var(--danger); font-size:22px;"></i></div>
+      <div class="stat-info">
+        <div class="value" style="color:var(--danger)">{{ student.currency }} {{ balance|floatformat:0 }}</div>
+        <div class="label">Fee Balance</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Payment Status -->
+<div class="card mb-4">
+  <div class="card-header"><h5><i class="fas fa-wallet"></i> Payment Status</h5></div>
+  <div class="card-body">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+      <span style="font-size:14px; color:#aaa;">Tuition Payment Progress</span>
+      <span style="font-size:16px; font-weight:700; color:var(--navy);">{{ student.payment_percentage|floatformat:1 }}%</span>
+    </div>
+    <div style="background:#f0f2f8; border-radius:20px; height:12px; overflow:hidden;">
+      <div style="background:linear-gradient(90deg, var(--navy), var(--gold)); height:100%; width:{{ student.payment_percentage|floatformat:0 }}%; border-radius:20px;"></div>
+    </div>
+    <div style="display:flex; justify-content:space-around; margin-top:14px; flex-wrap:wrap; gap:8px;">
+      <div style="text-align:center;">
+        <div style="width:36px; height:36px; border-radius:50%; margin:0 auto 4px; display:flex; align-items:center; justify-content:center; {% if student.is_enrolled %}background:var(--success); color:white;{% else %}background:#f0f2f8; color:#aaa;{% endif %}">
+          <i class="fas fa-{% if student.is_enrolled %}check{% else %}lock{% endif %}" style="font-size:14px;"></i>
+        </div>
+        <div style="font-size:11px; font-weight:600; {% if student.is_enrolled %}color:var(--success);{% else %}color:#aaa;{% endif %}">Enrolled</div>
+        <div style="font-size:10px; color:#aaa;">30%</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="width:36px; height:36px; border-radius:50%; margin:0 auto 4px; display:flex; align-items:center; justify-content:center; {% if student.cat1_cleared %}background:var(--success); color:white;{% else %}background:#f0f2f8; color:#aaa;{% endif %}">
+          <i class="fas fa-{% if student.cat1_cleared %}check{% else %}lock{% endif %}" style="font-size:14px;"></i>
+        </div>
+        <div style="font-size:11px; font-weight:600; {% if student.cat1_cleared %}color:var(--success);{% else %}color:#aaa;{% endif %}">CAT 1</div>
+        <div style="font-size:10px; color:#aaa;">50%</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="width:36px; height:36px; border-radius:50%; margin:0 auto 4px; display:flex; align-items:center; justify-content:center; {% if student.cat2_cleared %}background:var(--success); color:white;{% else %}background:#f0f2f8; color:#aaa;{% endif %}">
+          <i class="fas fa-{% if student.cat2_cleared %}check{% else %}lock{% endif %}" style="font-size:14px;"></i>
+        </div>
+        <div style="font-size:11px; font-weight:600; {% if student.cat2_cleared %}color:var(--success);{% else %}color:#aaa;{% endif %}">CAT 2</div>
+        <div style="font-size:10px; color:#aaa;">75%</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="width:36px; height:36px; border-radius:50%; margin:0 auto 4px; display:flex; align-items:center; justify-content:center; {% if student.exam_cleared %}background:var(--success); color:white;{% else %}background:#f0f2f8; color:#aaa;{% endif %}">
+          <i class="fas fa-{% if student.exam_cleared %}check{% else %}lock{% endif %}" style="font-size:14px;"></i>
+        </div>
+        <div style="font-size:11px; font-weight:600; {% if student.exam_cleared %}color:var(--success);{% else %}color:#aaa;{% endif %}">Exam</div>
+        <div style="font-size:10px; color:#aaa;">100%</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if pending_submissions > 0 %}
+<div class="alert alert-warning">
+  <i class="fas fa-clock"></i>
+  You have <strong>{{ pending_submissions }} payment submission(s)</strong> pending Finance verification.
+</div>
+{% endif %}
+
+<!-- Quick Access -->
+<h5 style="font-size:16px; font-weight:700; color:var(--navy); margin-bottom:16px;"><i class="fas fa-th"></i> Quick Access</h5>
+<div class="grid-3">
+  <a href="{% url 'select_modules' %}" class="module-card" style="border-left-color:#0D1B5E;">
+    <div class="module-icon" style="background:rgba(13,27,94,0.1);"><i class="fas fa-plus-circle" style="color:var(--navy); font-size:22px;"></i></div>
+    <div class="module-title">Register Modules</div>
+    <div class="module-desc">Select your modules for this semester</div>
+  </a>
+  <a href="{% url 'my_courses' %}" class="module-card" style="border-left-color:#C9A84C;">
+    <div class="module-icon" style="background:rgba(201,168,76,0.15);"><i class="fas fa-book-open" style="color:var(--gold); font-size:22px;"></i></div>
+    <div class="module-title">My Modules</div>
+    <div class="module-desc">View enrolled and pending modules</div>
+  </a>
+  <a href="{% url 'submit_payment' %}" class="module-card" style="border-left-color:#2E7D32;">
+    <div class="module-icon" style="background:rgba(46,125,50,0.1);"><i class="fas fa-money-bill-wave" style="color:var(--success); font-size:22px;"></i></div>
+    <div class="module-title">Submit Payment</div>
+    <div class="module-desc">Submit bank payment for verification</div>
+  </a>
+  <a href="{% url 'my_results' %}" class="module-card" style="border-left-color:#C62828;">
+    <div class="module-icon" style="background:rgba(198,40,40,0.1);"><i class="fas fa-star" style="color:var(--danger); font-size:22px;"></i></div>
+    <div class="module-title">My Results</div>
+    <div class="module-desc">View your grades and transcript</div>
+  </a>
+  <a href="{% url 'my_fees' %}" class="module-card" style="border-left-color:#1565C0;">
+    <div class="module-icon" style="background:rgba(21,101,192,0.1);"><i class="fas fa-wallet" style="color:#1565C0; font-size:22px;"></i></div>
+    <div class="module-title">My Fees</div>
+    <div class="module-desc">View fee balance and submissions</div>
+  </a>
+  {% if student.is_enrolled %}
+  <a href="{% url 'proof_of_registration' %}" class="module-card" style="border-left-color:#6A1B9A;">
+    <div class="module-icon" style="background:rgba(106,27,154,0.1);"><i class="fas fa-print" style="color:#6A1B9A; font-size:22px;"></i></div>
+    <div class="module-title">Proof of Registration</div>
+    <div class="module-desc">Print your registration document</div>
+  </a>
+  {% endif %}
+  {% if student.exam_cleared %}
+  <a href="{% url 'my_exam_docket' %}" class="module-card" style="border-left-color:#C9A84C;">
+    <div class="module-icon" style="background:rgba(201,168,76,0.15);"><i class="fas fa-file-alt" style="color:var(--gold); font-size:22px;"></i></div>
+    <div class="module-title">Exam Docket</div>
+    <div class="module-desc">Print your exam entry docket</div>
+  </a>
+  {% endif %}
+</div>
+
+{% else %}
+<div class="card">
+  <div class="card-body" style="text-align:center; padding:40px;">
+    <i class="fas fa-exclamation-circle" style="font-size:48px; color:var(--warning);"></i>
+    <p style="margin-top:16px; color:#aaa; font-size:16px;">Student profile not found. Please contact the Registry office.</p>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Cavendish University SMS{% endblock %}</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="icon" href="{% static 'images/logo.png' %}">
+</head>
+<body>
+
+{% if user.is_authenticated %}
+
+<nav class="navbar">
+  <div class="d-flex align-items-center gap-2">
+    <button class="hamburger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+    <a href="{% url 'dashboard' %}" class="navbar-brand">
+      <img src="{% static 'images/logo.png' %}" alt="Logo">
+      <div class="navbar-brand-text">
+        <span class="uni-name">CAVENDISH UNIVERSITY</span>
+        <span class="role-badge">{{ user.get_role_display }}</span>
+      </div>
+    </a>
+  </div>
+  <div class="navbar-actions">
+    <a href="{% url 'dashboard' %}"><i class="fas fa-home"></i> Home</a>
+    <a href="{% url 'logout' %}" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+  </div>
+</nav>
+
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<aside class="sidebar" id="sidebar">
+  <nav class="sidebar-nav">
+    <div class="sidebar-section">Main Menu</div>
+    <a href="{% url 'dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+      <span class="nav-icon"><i class="fas fa-th-large"></i></span> Dashboard
+    </a>
+
+    {% if user.role == 'admin' or user.role == 'registry' %}
+    <div class="sidebar-section">Academic</div>
+    <a href="{% url 'students_list' %}"><span class="nav-icon"><i class="fas fa-user-graduate"></i></span> Students</a>
+    <a href="{% url 'courses_list' %}"><span class="nav-icon"><i class="fas fa-book"></i></span> Courses</a>
+    <a href="{% url 'enrollments_list' %}"><span class="nav-icon"><i class="fas fa-clipboard-list"></i></span> Enrollments</a>
+    <a href="{% url 'departments_list' %}"><span class="nav-icon"><i class="fas fa-building"></i></span> Departments</a>
+    {% endif %}
+
+    {% if user.role == 'admin' or user.role == 'finance' %}
+    <div class="sidebar-section">Finance</div>
+    <a href="{% url 'fees_list' %}"><span class="nav-icon"><i class="fas fa-wallet"></i></span> Fee Payments</a>
+    {% endif %}
+
+    {% if user.role == 'admin' or user.role == 'lecturer' %}
+    <div class="sidebar-section">Results</div>
+    <a href="{% url 'results_list' %}"><span class="nav-icon"><i class="fas fa-medal"></i></span> Results</a>
+    {% endif %}
+
+    {% if user.role == 'exam_office' or user.role == 'admin' %}
+    <div class="sidebar-section">Exam Office</div>
+    <a href="{% url 'exam_office_dashboard' %}"><span class="nav-icon"><i class="fas fa-file-alt"></i></span> Exam Dashboard</a>
+    <a href="{% url 'clearance_list' %}"><span class="nav-icon"><i class="fas fa-clipboard-check"></i></span> Clearance Lists</a>
+    {% endif %}
+
+    {% if user.role == 'student' %}
+    <div class="sidebar-section">My Academic</div>
+    <a href="{% url 'my_dashboard' %}"><span class="nav-icon"><i class="fas fa-th-large"></i></span> My Dashboard</a>
+    <a href="{% url 'my_courses' %}"><span class="nav-icon"><i class="fas fa-book-open"></i></span> My Modules</a>
+    <a href="{% url 'select_modules' %}"><span class="nav-icon"><i class="fas fa-plus-circle"></i></span> Register Modules</a>
+    <a href="{% url 'my_results' %}"><span class="nav-icon"><i class="fas fa-star"></i></span> My Results</a>
+    <a href="{% url 'my_fees' %}"><span class="nav-icon"><i class="fas fa-money-bill"></i></span> My Fees</a>
+    <div class="sidebar-section">Documents</div>
+    <a href="{% url 'proof_of_registration' %}"><span class="nav-icon"><i class="fas fa-print"></i></span> Proof of Registration</a>
+    <a href="{% url 'my_exam_docket' %}"><span class="nav-icon"><i class="fas fa-file-alt"></i></span> Exam Docket</a>
+    {% endif %}
+
+    {% if user.role == 'admin' or user.role == 'finance' %}
+    <div class="sidebar-section">Reports</div>
+    <a href="{% url 'reports' %}"><span class="nav-icon"><i class="fas fa-chart-bar"></i></span> Reports</a>
+    {% endif %}
+
+    {% if user.role == 'admin' %}
+    <div class="sidebar-section">Administration</div>
+    <a href="{% url 'users_list' %}"><span class="nav-icon"><i class="fas fa-users-cog"></i></span> User Management</a>
+    {% endif %}
+
+    <div class="sidebar-section">Account</div>
+    <a href="{% url 'logout' %}"><span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span> Sign Out</a>
+  </nav>
+</aside>
+
+<main class="main-content">
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+  {% block content %}{% endblock %}
+</main>
+
+<nav class="mobile-nav">
+  <div class="mobile-nav-items">
+    <a href="{% url 'dashboard' %}" class="mobile-nav-item">
+      <span class="icon"><i class="fas fa-th-large"></i></span><span>Home</span>
+    </a>
+    {% if user.role == 'student' %}
+    <a href="{% url 'my_courses' %}" class="mobile-nav-item">
+      <span class="icon"><i class="fas fa-book-open"></i></span><span>Modules</span>
+    </a>
+    <a href="{% url 'my_results' %}" class="mobile-nav-item">
+      <span class="icon"><i class="fas fa-star"></i></span><span>Results</span>
+    </a>
+    <a href="{% url 'my_fees' %}" class="mobile-nav-item">
+      <span class="icon"><i class="fas fa-money-bill"></i></span><span>Fees</span>
+    </a>
+    {% elif user.role == 'exam_office' %}
+    <a href="{% url 'exam_office_dashboard' %}" class="mobile-nav-item">
+      <span class="icon"><i class="fas fa-file-alt"></i></span><span>Exam</span>
+    </a>
+    <a href="{% url 'clearance_list' %}" class="mobile-nav-item">
+      <span class="icon"><i class="fas fa-clipboard-check"></i></span><span>Clearance</span>
+    </a>
+    {% else %}
+    <a href="{% url 'students_list' %}" class="mobile-nav-item">
+      <span class="icon"><i class="fas fa-user-graduate"></i></span><span>Students</span>
+    </a>
+    <a href="{% url 'fees_list' %}" class="mobile-nav-item">
+      <span class="icon"><i class="fas fa-wallet"></i></span><span>Fees</span>
+    </a>
+    <a href="{% url 'results_list' %}" class="mobile-nav-item">
+      <span class="icon"><i class="fas fa-medal"></i></span><span>Results</span>
+    </a>
+    {% endif %}
+    <a href="{% url 'logout' %}" class="mobile-nav-item">
+      <span class="icon"><i class="fas fa-sign-out-alt"></i></span><span>Logout</span>
+    </a>
+  </div>
+</nav>
+
+{% endif %}
+
+<!-- ========== AI CHATBOT WIDGET ========== -->
+{% if user.is_authenticated and user.role in 'finance,exam_office,admin' %}
+
+<button class="chatbot-btn" onclick="toggleChatbot()" title="AI Assistant">
+  <i class="fas fa-robot"></i>
+  <span class="badge-dot"></span>
+</button>
+
+<div class="chatbot-window" id="chatbotWindow">
+  <div class="chatbot-header">
+    <div class="ai-avatar"><i class="fas fa-robot"></i></div>
+    <div class="chatbot-header-info">
+      <div class="name">CUU AI Assistant</div>
+      <div class="status">Online — Analysing live data</div>
+    </div>
+    <button class="chatbot-close" onclick="toggleChatbot()"><i class="fas fa-times"></i></button>
+  </div>
+
+  <div class="chatbot-messages" id="chatMessages">
+    <div class="chat-msg ai">
+      <div class="chat-bubble">
+        Hello! I am your AI assistant with access to live university data.
+        {% if user.role == 'finance' %}
+        I can help you with fee payments, clearance lists, and financial reports. What would you like to know?
+        {% elif user.role == 'exam_office' %}
+        I can help you with exam clearance, docket generation, and student status. What would you like to know?
+        {% else %}
+        I have access to all university data. Ask me anything!
+        {% endif %}
+      </div>
+      <span class="chat-time">Just now</span>
+    </div>
+  </div>
+
+  <div class="chatbot-suggestions" id="chatSuggestions">
+    {% if user.role == 'finance' %}
+    <span class="suggestion-chip" onclick="sendSuggestion(this)">Who is not cleared for CAT 2?</span>
+    <span class="suggestion-chip" onclick="sendSuggestion(this)">Fee summary today</span>
+    <span class="suggestion-chip" onclick="sendSuggestion(this)">Who has not paid at all?</span>
+    {% elif user.role == 'exam_office' %}
+    <span class="suggestion-chip" onclick="sendSuggestion(this)">Who is cleared for exams?</span>
+    <span class="suggestion-chip" onclick="sendSuggestion(this)">Clearance summary</span>
+    <span class="suggestion-chip" onclick="sendSuggestion(this)">Who is not cleared?</span>
+    {% else %}
+    <span class="suggestion-chip" onclick="sendSuggestion(this)">System overview</span>
+    <span class="suggestion-chip" onclick="sendSuggestion(this)">Fee collection summary</span>
+    <span class="suggestion-chip" onclick="sendSuggestion(this)">Clearance status</span>
+    {% endif %}
+  </div>
+
+  <div class="chatbot-input-row">
+    <textarea class="chatbot-input" id="chatInput" placeholder="Ask me anything..." rows="1"
+      onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+    <button class="chatbot-send" id="chatSendBtn" onclick="sendMessage()">
+      <i class="fas fa-paper-plane"></i>
+    </button>
+  </div>
+</div>
+
+<script>
+var chatHistory = [];
+var isSending = false;
+
+function toggleChatbot() {
+  var win = document.getElementById('chatbotWindow');
+  win.classList.toggle('open');
+  if (win.classList.contains('open')) {
+    document.getElementById('chatInput').focus();
+  }
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 80) + 'px';
+}
+
+function sendSuggestion(el) {
+  document.getElementById('chatInput').value = el.textContent;
+  document.getElementById('chatSuggestions').style.display = 'none';
+  sendMessage();
+}
+
+function getTime() {
+  return new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+}
+
+function appendMessage(role, text) {
+  var msgs = document.getElementById('chatMessages');
+  var div = document.createElement('div');
+  div.className = 'chat-msg ' + role;
+  div.innerHTML = '<div class="chat-bubble">' + text.replace(/\n/g, '<br>') + '</div><span class="chat-time">' + getTime() + '</span>';
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function showTyping() {
+  var msgs = document.getElementById('chatMessages');
+  var div = document.createElement('div');
+  div.className = 'chat-msg ai';
+  div.id = 'typingIndicator';
+  div.innerHTML = '<div class="chat-typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function removeTyping() {
+  var el = document.getElementById('typingIndicator');
+  if (el) el.remove();
+}
+
+function sendMessage() {
+  if (isSending) return;
+  var input = document.getElementById('chatInput');
+  var msg = input.value.trim();
+  if (!msg) return;
+
+  isSending = true;
+  document.getElementById('chatSendBtn').disabled = true;
+  input.value = '';
+  input.style.height = 'auto';
+
+  appendMessage('user', msg);
+  chatHistory.push({role: 'user', content: msg});
+  showTyping();
+
+  fetch('{% url "chatbot_message" %}', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': '{{ csrf_token }}',
+    },
+    body: JSON.stringify({
+      message: msg,
+      history: chatHistory.slice(-10),
+    })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    removeTyping();
+    if (data.response) {
+      appendMessage('ai', data.response);
+      chatHistory.push({role: 'assistant', content: data.response});
+    } else {
+      appendMessage('ai', 'Sorry, I encountered an error. Please try again.');
+    }
+  })
+  .catch(function() {
+    removeTyping();
+    appendMessage('ai', 'Connection error. Please check your connection and try again.');
+  })
+  .finally(function() {
+    isSending = false;
+    document.getElementById('chatSendBtn').disabled = false;
+    document.getElementById('chatInput').focus();
+  });
+}
+</script>
+
+{% endif %}
+<!-- ========== END CHATBOT ========== -->
+
+<script>
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('open');
+}
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+setTimeout(function() {
+  document.querySelectorAll('.alert').forEach(function(a) {
+    a.style.transition = 'opacity 0.5s';
+    a.style.opacity = '0';
+    setTimeout(function() { a.style.display = 'none'; }, 500);
+  });
+}, 5000);
+</script>
+
+</body>
+</html>

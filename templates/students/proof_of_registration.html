@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Proof of Registration - {{ student.full_name }}</title>
+  {% load static %}
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Times New Roman', serif; background: #f0f2f8; }
+    .no-print { background: #0D1B5E; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; }
+    .no-print a { color: white; text-decoration: none; font-family: Arial; font-size: 13px; padding: 8px 16px; border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; }
+    .no-print button { background: #C9A84C; color: #0D1B5E; border: none; padding: 8px 20px; border-radius: 8px; font-family: Arial; font-weight: 700; cursor: pointer; font-size: 13px; }
+    .page { background: white; width: 210mm; min-height: 297mm; margin: 20px auto; padding: 20mm; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+    .header { display: flex; align-items: flex-start; gap: 16px; border-bottom: 2px solid #000; padding-bottom: 12px; margin-bottom: 16px; }
+    .header img.logo { width: 70px; height: 70px; object-fit: contain; }
+    .header-text { flex: 1; text-align: center; }
+    .header-text h2 { font-size: 16px; font-weight: bold; }
+    .header-text h3 { font-size: 14px; }
+    .header-text h4 { font-size: 13px; font-weight: bold; margin-top: 4px; }
+    .header .student-photo { width: 80px; height: 90px; border: 1px solid #000; object-fit: cover; flex-shrink: 0; }
+    .header .photo-placeholder { width: 80px; height: 90px; border: 1px solid #000; display: flex; align-items: center; justify-content: center; font-size: 11px; text-align: center; color: #aaa; flex-shrink: 0; }
+    .info-row { display: flex; margin-bottom: 10px; }
+    .info-label { font-weight: bold; font-size: 13px; width: 180px; flex-shrink: 0; }
+    .info-value { font-size: 13px; }
+    .certify { font-size: 13px; margin: 14px 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 14px; }
+    th { border: 1px solid #000; padding: 8px 10px; font-size: 13px; background: #f0f0f0; text-align: left; }
+    td { border: 1px solid #000; padding: 8px 10px; font-size: 13px; }
+    .semester-row td { background: #e8e8e8; font-weight: bold; text-align: center; }
+    .sign-row { display: flex; justify-content: space-between; margin-top: 40px; }
+    .sign-line { border-top: 1px solid #000; width: 200px; margin-bottom: 4px; }
+    .sign-name { font-size: 13px; font-weight: bold; text-align: center; }
+    .cc { font-size: 12px; margin-top: 20px; font-weight: bold; }
+    @media print {
+      body { background: white; }
+      .no-print { display: none; }
+      .page { margin: 0; padding: 15mm; box-shadow: none; width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="no-print">
+  <a href="{% url 'my_courses' %}">&#8592; Back</a>
+  <button onclick="window.print()">&#128424; Print Proof of Registration</button>
+</div>
+
+<div class="page">
+  <div class="header">
+    <img class="logo" src="{% static 'images/logo.png' %}" alt="Logo">
+    <div class="header-text">
+      <h2>Cavendish University Uganda</h2>
+      <h3>{{ student.department.name|default:"Faculty of Science & Technology" }}</h3>
+      <h3>{{ student.program }}</h3>
+      <h4>PROOF OF REGISTRATION</h4>
+    </div>
+    {% if student.photo %}
+    <img class="student-photo" src="{{ student.photo.url }}" alt="Student Photo">
+    {% else %}
+    <div class="photo-placeholder">Photo</div>
+    {% endif %}
+  </div>
+
+  <div class="info-row">
+    <span class="info-label">DATE ISSUED:</span>
+    <span class="info-value">{{ today|date:"d F Y" }}</span>
+  </div>
+  <div class="info-row">
+    <span class="info-label">STUDENT NAME:</span>
+    <span class="info-value">{{ student.full_name }}</span>
+  </div>
+  <div class="info-row">
+    <span class="info-label">STUDENT NUMBER:</span>
+    <span class="info-value">{{ student.student_id }}</span>
+  </div>
+
+  <p class="certify">This is to certify that the above student has been registered as follows:</p>
+
+  <div class="info-row">
+    <span class="info-label">YEAR:</span>
+    <span class="info-value">{{ today|date:"Y" }}</span>
+  </div>
+  <div class="info-row">
+    <span class="info-label">QUALIFICATION:</span>
+    <span class="info-value">{{ student.program }}</span>
+  </div>
+  <div class="info-row">
+    <span class="info-label">STUDY PERIOD:</span>
+    <span class="info-value">Year {{ student.year_of_study }}</span>
+  </div>
+  <div class="info-row">
+    <span class="info-label">MODE OF STUDY:</span>
+    <span class="info-value">{{ student.get_mode_of_study_display }}</span>
+  </div>
+  <div class="info-row">
+    <span class="info-label">FACULTY:</span>
+    <span class="info-value">{{ student.department.name|default:"Science & Technology" }}</span>
+  </div>
+  <div class="info-row">
+    <span class="info-label">BALANCE ({{ student.currency }}):</span>
+    <span class="info-value">{{ balance|floatformat:2 }} &nbsp;&nbsp;&nbsp; Balance as at: {{ today|date:"d F Y" }}</span>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:120px;">CODE</th>
+        <th>MODULE</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="semester-row">
+        <td colspan="2">Semester: 2025-AUG — Semester in Program: {{ student.semester_in_program }}</td>
+      </tr>
+      {% for e in enrollments %}
+      <tr>
+        <td>{{ e.course.course_code }}</td>
+        <td>{{ e.course.name }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="2" style="text-align:center; color:#aaa;">No enrolled modules</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div style="margin-top:30px;">
+    <div class="sign-row">
+      <div>
+        <div class="sign-line"></div>
+        <div class="sign-name">Registrar</div>
+      </div>
+    </div>
+    <p class="cc">CC: FILE</p>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Courses{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1><i class="fas fa-book"></i> Courses</h1><p>All courses in the module catalog</p></div>
+  {% if user.role == 'admin' or user.role == 'registry' %}
+  <a href="{% url 'course_create' %}" class="btn btn-gold"><i class="fas fa-plus"></i> Add Course</a>
+  {% endif %}
+</div>
+<div class="card">
+  <div class="card-header"><h5><i class="fas fa-list"></i> Course Catalog ({{ courses.count }})</h5></div>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th><th>Code</th><th>Course Name</th><th>Semester</th><th>Department</th><th>Lecturer</th><th>Credits</th><th>Enrolled</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for course in courses %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td><span class="badge badge-gold">{{ course.course_code }}</span></td>
+          <td><strong>{{ course.name }}</strong></td>
+          <td><span class="badge badge-navy">Sem {{ course.semester_in_program }}</span></td>
+          <td style="font-size:12px;">{{ course.department.name|default:"N/A" }}</td>
+          <td style="font-size:12px;">{{ course.lecturer.full_name|default:"TBA" }}</td>
+          <td>{{ course.credits }}</td>
+          <td>{{ course.enrolled_count }}/{{ course.max_enrollment }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" style="text-align:center; padding:30px; color:#aaa;">No courses found</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

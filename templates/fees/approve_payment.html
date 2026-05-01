@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}{% if rejecting %}Reject{% else %}Approve{% endif %} Payment{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1><i class="fas fa-{% if rejecting %}times-circle{% else %}check-circle{% endif %}"></i>
+    {% if rejecting %}Reject{% else %}Approve{% endif %} Payment</h1>
+    <p>Review payment submission from {{ submission.student.full_name }}</p>
+  </div>
+  <a href="{% url 'pending_payments' %}" class="btn btn-gold"><i class="fas fa-arrow-left"></i> Back</a>
+</div>
+
+<div class="card" style="max-width:600px;">
+  <div class="card-header"><h5><i class="fas fa-file-invoice"></i> Payment Details</h5></div>
+  <div class="card-body">
+    <table style="width:100%;">
+      <tr><td style="color:#aaa; padding:8px 0; font-size:13px;">Student</td><td><strong>{{ submission.student.full_name }}</strong></td></tr>
+      <tr><td style="color:#aaa; padding:8px 0; font-size:13px;">Student ID</td><td>{{ submission.student.student_id }}</td></tr>
+      <tr><td style="color:#aaa; padding:8px 0; font-size:13px;">Bank</td><td>{{ submission.get_bank_name_display }}</td></tr>
+      <tr><td style="color:#aaa; padding:8px 0; font-size:13px;">Reference</td><td><span class="badge badge-navy">{{ submission.bank_reference }}</span></td></tr>
+      <tr><td style="color:#aaa; padding:8px 0; font-size:13px;">Amount</td><td><strong style="color:var(--success);">{{ submission.currency }} {{ submission.amount_paid|floatformat:0 }}</strong></td></tr>
+      <tr><td style="color:#aaa; padding:8px 0; font-size:13px;">Tuition Total</td><td>{{ submission.student.currency }} {{ submission.student.tuition_amount|floatformat:0 }}</td></tr>
+      <tr><td style="color:#aaa; padding:8px 0; font-size:13px;">Current Paid %</td><td><strong>{{ submission.student.payment_percentage|floatformat:1 }}%</strong></td></tr>
+      <tr><td style="color:#aaa; padding:8px 0; font-size:13px;">Submitted</td><td>{{ submission.date_submitted|date:"d M Y H:i" }}</td></tr>
+      {% if submission.notes %}
+      <tr><td style="color:#aaa; padding:8px 0; font-size:13px;">Notes</td><td>{{ submission.notes }}</td></tr>
+      {% endif %}
+    </table>
+
+    <div style="margin-top:20px;">
+      {% if rejecting %}
+      <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+          <label class="form-label">Rejection Reason *</label>
+          <textarea name="reason" class="form-control" rows="3" required placeholder="Explain why this payment is being rejected..."></textarea>
+        </div>
+        <button type="submit" class="btn btn-danger" style="width:100%; justify-content:center; padding:12px; font-size:15px;">
+          <i class="fas fa-times"></i> Reject Payment
+        </button>
+      </form>
+      {% else %}
+      <div class="alert alert-info" style="margin-bottom:16px;">
+        <i class="fas fa-info-circle"></i>
+        Approving this payment will automatically enroll the student in their selected modules if they reach 30% of tuition.
+      </div>
+      <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-success" style="width:100%; justify-content:center; padding:12px; font-size:15px;">
+          <i class="fas fa-check"></i> Approve Payment & Enroll Student
+        </button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

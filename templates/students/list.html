@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}Students - Cavendish University SMS{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1><i class="fas fa-user-graduate"></i> Students</h1>
+    <p>Manage student registrations and profiles</p>
+  </div>
+  <a href="{% url 'student_register' %}" class="btn btn-gold"><i class="fas fa-plus"></i> Register Student</a>
+</div>
+<div class="card">
+  <div class="card-header">
+    <h5><i class="fas fa-list"></i> Student Records ({{ students.count }})</h5>
+    <form method="get" style="display:flex; gap:8px;">
+      <input type="text" name="search" value="{{ search }}" class="form-control" placeholder="Search by name or ID..." style="width:220px;">
+      <button type="submit" class="btn btn-navy"><i class="fas fa-search"></i></button>
+      {% if search %}<a href="{% url 'students_list' %}" class="btn btn-gold"><i class="fas fa-times"></i></a>{% endif %}
+    </form>
+  </div>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th><th>Student ID</th><th>Full Name</th><th>Program</th>
+          <th>Department</th><th>Year</th><th>Status</th><th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for student in students %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td><span class="badge badge-navy">{{ student.student_id }}</span></td>
+          <td><strong>{{ student.full_name }}</strong></td>
+          <td>{{ student.program }}</td>
+          <td>{{ student.department.name|default:"N/A" }}</td>
+          <td>Year {{ student.year_of_study }}</td>
+          <td><span class="badge badge-success">Active</span></td>
+          <td><a href="{% url 'student_detail' student.pk %}" class="btn btn-navy btn-sm"><i class="fas fa-eye"></i> View</a></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" style="text-align:center; padding:30px; color:#aaa;">No students found</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

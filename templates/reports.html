@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Reports{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1><i class="fas fa-chart-bar"></i> Reports & Analytics</h1><p>System-wide reports and statistics</p></div>
+</div>
+<div class="grid-4 mb-4">
+  <div class="stat-card">
+    <div class="stat-icon" style="background:rgba(13,27,94,0.1);"><i class="fas fa-user-graduate" style="color:var(--navy); font-size:22px;"></i></div>
+    <div class="stat-info"><div class="value text-navy">{{ total_students }}</div><div class="label">Total Students</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background:rgba(201,168,76,0.15);"><i class="fas fa-book" style="color:var(--gold); font-size:22px;"></i></div>
+    <div class="stat-info"><div class="value" style="color:var(--gold)">{{ total_courses }}</div><div class="label">Total Courses</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background:rgba(230,81,0,0.1);"><i class="fas fa-clipboard-list" style="color:var(--warning); font-size:22px;"></i></div>
+    <div class="stat-info"><div class="value" style="color:var(--warning)">{{ total_enrollments }}</div><div class="label">Enrollments</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background:rgba(46,125,50,0.1);"><i class="fas fa-wallet" style="color:var(--success); font-size:22px;"></i></div>
+    <div class="stat-info"><div class="value" style="color:var(--success)">UGX {{ total_fees }}</div><div class="label">Fees Collected</div></div>
+  </div>
+</div>
+<div class="grid-2">
+  <div class="card">
+    <div class="card-header"><h5><i class="fas fa-medal"></i> Results Summary</h5></div>
+    <div class="card-body">
+      <div style="margin-bottom:16px;">
+        <div style="font-size:13px; color:#aaa;">Total Results Entered</div>
+        <div style="font-size:28px; font-weight:800; color:var(--navy);">{{ total_results }}</div>
+      </div>
+      <div>
+        <div style="font-size:13px; color:#aaa;">Class Average</div>
+        <div style="font-size:28px; font-weight:800; color:var(--gold);">{{ avg_marks }}%</div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><h5><i class="fas fa-chart-pie"></i> Grade Distribution</h5></div>
+    <div class="card-body" style="padding:0;">
+      <table style="width:100%;">
+        <thead><tr><th style="background:var(--navy); color:white; padding:10px 16px;">Grade</th><th style="background:var(--navy); color:white; padding:10px 16px;">Count</th></tr></thead>
+        <tbody>
+          {% for g in grade_dist %}
+          <tr style="border-bottom:1px solid #f0f2f8;">
+            <td style="padding:10px 16px;"><span class="grade-{{ g.grade }}" style="font-size:18px; font-weight:800;">{{ g.grade }}</span></td>
+            <td style="padding:10px 16px; font-weight:600;">{{ g.count }} students</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="2" style="padding:20px; text-align:center; color:#aaa;">No results yet</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block title %}Clearance List - {{ label }}{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1><i class="fas fa-clipboard-check"></i> {{ label }}</h1>
+    <p>Students cleared for {{ label }} — 2025/2026</p>
+  </div>
+  <div style="display:flex; gap:10px;">
+    <a href="{% url 'exam_office_dashboard' %}" class="btn btn-gold"><i class="fas fa-arrow-left"></i> Back</a>
+    <button onclick="window.print()" class="btn btn-navy"><i class="fas fa-print"></i> Print List</button>
+  </div>
+</div>
+
+<div style="display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap;">
+  <a href="?type=enrollment" class="btn {% if clearance_type == 'enrollment' %}btn-navy{% else %}btn-gold{% endif %}">Enrollment (30%)</a>
+  <a href="?type=cat1" class="btn {% if clearance_type == 'cat1' %}btn-navy{% else %}btn-gold{% endif %}">CAT 1 (50%)</a>
+  <a href="?type=cat2" class="btn {% if clearance_type == 'cat2' %}btn-navy{% else %}btn-gold{% endif %}">CAT 2 (75%)</a>
+  <a href="?type=exam" class="btn {% if clearance_type == 'exam' %}btn-navy{% else %}btn-gold{% endif %}">Exam (100%)</a>
+</div>
+
+<div class="grid-2 mb-4">
+  <div class="stat-card">
+    <div class="stat-icon" style="background:rgba(46,125,50,0.1);"><i class="fas fa-check-circle" style="color:var(--success); font-size:22px;"></i></div>
+    <div class="stat-info"><div class="value" style="color:var(--success);">{{ cleared|length }}</div><div class="label">Cleared Students</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background:rgba(198,40,40,0.1);"><i class="fas fa-times-circle" style="color:var(--danger); font-size:22px;"></i></div>
+    <div class="stat-info"><div class="value" style="color:var(--danger);">{{ not_cleared|length }}</div><div class="label">Not Cleared</div></div>
+  </div>
+</div>
+
+<div class="card mb-4">
+  <div class="card-header">
+    <h5><i class="fas fa-check-circle" style="color:var(--success);"></i> Cleared Students ({{ cleared|length }})</h5>
+  </div>
+  <div class="table-wrapper">
+    <table>
+      <thead><tr><th>#</th><th>Student ID</th><th>Full Name</th><th>Program</th><th>Payment %</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for item in cleared %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td><span class="badge badge-navy">{{ item.student.student_id }}</span></td>
+          <td><strong>{{ item.student.full_name }}</strong></td>
+          <td style="font-size:12px;">{{ item.student.program }}</td>
+          <td><strong style="color:var(--success);">{{ item.percentage }}%</strong></td>
+          <td><span class="badge badge-success"><i class="fas fa-check"></i> Cleared</span></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" style="text-align:center; padding:20px; color:#aaa;">No students cleared at this threshold</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h5><i class="fas fa-times-circle" style="color:var(--danger);"></i> Not Cleared Students ({{ not_cleared|length }})</h5>
+  </div>
+  <div class="table-wrapper">
+    <table>
+      <thead><tr><th>#</th><th>Student ID</th><th>Full Name</th><th>Program</th><th>Payment %</th><th>Shortfall</th></tr></thead>
+      <tbody>
+        {% for item in not_cleared %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td><span class="badge badge-navy">{{ item.student.student_id }}</span></td>
+          <td><strong>{{ item.student.full_name }}</strong></td>
+          <td style="font-size:12px;">{{ item.student.program }}</td>
+          <td><strong style="color:var(--danger);">{{ item.percentage }}%</strong></td>
+          <td style="color:var(--danger);">{{ item.student.currency }} {{ item.shortfall|floatformat:0 }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" style="text-align:center; padding:20px; color:#aaa;">All students are cleared</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

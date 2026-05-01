@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Submit Payment{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1><i class="fas fa-money-bill-wave"></i> Submit Payment Proof</h1><p>Submit your bank payment for Finance verification</p></div>
+  <a href="{% url 'my_fees' %}" class="btn btn-gold"><i class="fas fa-arrow-left"></i> Back</a>
+</div>
+
+<div class="card" style="max-width:600px;">
+  <div class="card-header"><h5><i class="fas fa-university"></i> Bank Payment Details</h5></div>
+  <div class="card-body">
+    <div class="alert alert-info">
+      <i class="fas fa-info-circle"></i>
+      After paying at the bank, submit your payment details here. Finance will verify and approve your enrollment.
+    </div>
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-group">
+        <label class="form-label">Bank Name *</label>
+        <select name="bank_name" class="form-control" required>
+          <option value="stanbic">Stanbic Bank</option>
+          <option value="dtb">Diamond Trust Bank</option>
+          <option value="uba">United Bank for Africa</option>
+          <option value="dfcu">DFCU Bank</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Bank Reference Number *</label>
+        <input type="text" name="bank_reference" class="form-control" required placeholder="e.g. STB20251234567">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Amount Paid ({{ student.currency }}) *</label>
+        <input type="number" name="amount_paid" class="form-control" required step="0.01" placeholder="e.g. 500000">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Semester</label>
+        <select name="semester" class="form-control">
+          <option value="1">Semester 1</option>
+          <option value="2">Semester 2</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Additional Notes</label>
+        <textarea name="notes" class="form-control" rows="3" placeholder="Any additional information..."></textarea>
+      </div>
+      <button type="submit" class="btn btn-navy" style="width:100%; justify-content:center; padding:14px; font-size:15px;">
+        <i class="fas fa-paper-plane"></i> Submit Payment for Verification
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}

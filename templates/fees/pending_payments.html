@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Pending Payments{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1><i class="fas fa-clock"></i> Pending Payment Verifications</h1><p>Student payment submissions awaiting verification</p></div>
+  <a href="{% url 'fees_list' %}" class="btn btn-gold"><i class="fas fa-arrow-left"></i> Back to Fees</a>
+</div>
+
+<div class="card">
+  <div class="card-header"><h5><i class="fas fa-list"></i> Pending Submissions ({{ submissions.count }})</h5></div>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>#</th><th>Student</th><th>Bank</th><th>Reference</th><th>Amount</th><th>Semester</th><th>Submitted</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for s in submissions %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td>
+            <strong>{{ s.student.full_name }}</strong>
+            <div style="font-size:11px; color:#aaa;">{{ s.student.student_id }}</div>
+          </td>
+          <td>{{ s.get_bank_name_display }}</td>
+          <td><span class="badge badge-navy">{{ s.bank_reference }}</span></td>
+          <td><strong>{{ s.currency }} {{ s.amount_paid|floatformat:0 }}</strong></td>
+          <td>Sem {{ s.semester }}</td>
+          <td style="font-size:12px; color:#aaa;">{{ s.date_submitted|date:"d M Y H:i" }}</td>
+          <td>
+            <div style="display:flex; gap:6px;">
+              <a href="{% url 'approve_payment' s.pk %}" class="btn btn-success btn-sm"><i class="fas fa-check"></i> Approve</a>
+              <a href="{% url 'reject_payment' s.pk %}" class="btn btn-danger btn-sm"><i class="fas fa-times"></i> Reject</a>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" style="text-align:center; padding:30px; color:#aaa;">No pending payment submissions</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

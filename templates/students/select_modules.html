@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% block title %}Module Registration{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <h1><i class="fas fa-book-open"></i> Module Registration</h1>
+    <p>{{ student.program }} &bull; Semester {{ sem }} &bull; 2025/2026</p>
+  </div>
+  <a href="{% url 'my_courses' %}" class="btn btn-gold"><i class="fas fa-arrow-left"></i> Back</a>
+</div>
+
+<!-- Student Info Banner -->
+<div style="background:white; border-radius:14px; padding:16px 20px; margin-bottom:20px; box-shadow:var(--card-shadow); display:flex; gap:16px; flex-wrap:wrap; align-items:center;">
+  <div>
+    <div style="font-size:11px; color:#aaa; text-transform:uppercase; letter-spacing:1px;">Student</div>
+    <div style="font-weight:700; color:var(--navy);">{{ student.full_name }}</div>
+  </div>
+  <div style="width:1px; height:32px; background:#eee;"></div>
+  <div>
+    <div style="font-size:11px; color:#aaa; text-transform:uppercase; letter-spacing:1px;">Student ID</div>
+    <div style="font-weight:700; color:var(--navy);">{{ student.student_id }}</div>
+  </div>
+  <div style="width:1px; height:32px; background:#eee;"></div>
+  <div>
+    <div style="font-size:11px; color:#aaa; text-transform:uppercase; letter-spacing:1px;">Program</div>
+    <div style="font-weight:700; color:var(--navy);">{{ student.program }}</div>
+  </div>
+  <div style="width:1px; height:32px; background:#eee;"></div>
+  <div>
+    <div style="font-size:11px; color:#aaa; text-transform:uppercase; letter-spacing:1px;">Semester in Program</div>
+    <div style="font-weight:700; color:var(--gold);">Semester {{ sem }}</div>
+  </div>
+  <div style="width:1px; height:32px; background:#eee;"></div>
+  <div>
+    <div style="font-size:11px; color:#aaa; text-transform:uppercase; letter-spacing:1px;">Mode of Study</div>
+    <div style="font-weight:700; color:var(--navy);">{{ student.get_mode_of_study_display }}</div>
+  </div>
+</div>
+
+{% if available_courses %}
+<form method="post">
+  {% csrf_token %}
+
+  <div class="card mb-4">
+    <div class="card-header">
+      <h5><i class="fas fa-list-ul"></i> Available Modules — Semester {{ sem }}</h5>
+      <span style="font-size:13px; color:#aaa;">{{ available_courses.count }} module(s) available</span>
+    </div>
+    <div style="padding:0;">
+      {% for course in available_courses %}
+      <label style="display:flex; align-items:center; gap:14px; padding:14px 20px; border-bottom:1px solid var(--background); cursor:pointer; transition:background 0.15s;"
+             onmouseover="this.style.background='rgba(13,27,94,0.03)'"
+             onmouseout="this.style.background='transparent'">
+
+        {% if course.id in enrolled_ids %}
+        <!-- Already enrolled — show as checked and disabled -->
+        <input type="checkbox" name="courses" value="{{ course.id }}" checked disabled
+               style="width:20px; height:20px; accent-color:var(--success); cursor:not-allowed;">
+        {% else %}
+        <input type="checkbox" name="courses" value="{{ course.id }}"
+               {% if course.id in selected_ids %}checked{% endif %}
+               style="width:20px; height:20px; accent-color:var(--navy); cursor:pointer;">
+        {% endif %}
+
+        <div style="flex:1;">
+          <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+            <span style="font-weight:700; font-size:14px; color:var(--navy);">{{ course.course_code }}</span>
+            <span style="font-size:14px;">{{ course.name }}</span>
+            {% if course.id in enrolled_ids %}
+            <span class="badge badge-success" style="font-size:10px;"><i class="fas fa-check"></i> Enrolled</span>
+            {% elif course.id in selected_ids %}
+            <span class="badge badge-warning" style="font-size:10px;"><i class="fas fa-clock"></i> Selected</span>
+            {% endif %}
+          </div>
+          <div style="font-size:12px; color:#aaa; margin-top:3px;">
+            <i class="fas fa-user-tie" style="margin-right:4px;"></i>
+            {{ course.lecturer.full_name|default:"Lecturer TBA" }}
+            &bull; {{ course.credits }} Credits
+          </div>
+        </div>
+      </label>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="alert alert-warning" style="margin-bottom:20px;">
+    <i class="fas fa-exclamation-triangle"></i>
+    <strong>Important:</strong> Module selection is not final enrollment.
+    You must pay at least <strong>30%</strong> of your tuition fee to be officially enrolled in selected modules.
+  </div>
+
+  <button type="submit" class="btn btn-navy" style="padding:14px 32px; font-size:15px;">
+    <i class="fas fa-save"></i> Save Module Selection
+  </button>
+  <a href="{% url 'my_courses' %}" class="btn btn-gold" style="padding:14px 24px; font-size:15px; margin-left:10px;">
+    Cancel
+  </a>
+</form>
+
+{% else %}
+<div class="card">
+  <div class="card-body" style="text-align:center; padding:60px 40px;">
+    <i class="fas fa-book" style="font-size:56px; color:#ddd;"></i>
+    <h3 style="margin-top:16px; color:var(--navy);">No Modules Available</h3>
+    <p style="color:#aaa; margin-top:8px;">
+      There are no modules available for <strong>Semester {{ sem }}</strong> yet.
+    </p>
+    <p style="color:#aaa; font-size:13px; margin-top:8px;">
+      Please contact the Registry office to add courses for your semester.
+    </p>
+    <a href="{% url 'my_courses' %}" class="btn btn-navy" style="margin-top:20px;">
+      <i class="fas fa-arrow-left"></i> Back to My Modules
+    </a>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}
