@@ -3,8 +3,8 @@ from django.contrib.auth import authenticate, login, logout, update_session_auth
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import CustomUser
-from courses.models import Course
 import datetime
+
 
 def login_view(request):
     if request.user.is_authenticated:
@@ -18,7 +18,6 @@ def login_view(request):
             if user.must_change_password:
                 return redirect('change_password')
             return redirect('dashboard')
-        # Try OTP login
         try:
             user_obj = CustomUser.objects.get(username=username)
             if user_obj.otp and user_obj.otp == password:
@@ -29,9 +28,11 @@ def login_view(request):
         messages.error(request, 'Invalid username or password.')
     return render(request, 'login.html', {'current_year': datetime.datetime.now().year})
 
+
 def logout_view(request):
     logout(request)
     return redirect('login')
+
 
 @login_required
 def change_password(request):
@@ -53,6 +54,7 @@ def change_password(request):
         return redirect('dashboard')
     return render(request, 'accounts/change_password.html')
 
+
 @login_required
 def users_list(request):
     if request.user.role != 'admin':
@@ -63,9 +65,10 @@ def users_list(request):
     try:
         from courses.models import Course
         courses = list(Course.objects.filter(is_active=True))
-    except:
+    except Exception:
         courses = []
     return render(request, 'accounts/users.html', {'users': users, 'courses': courses})
+
 
 @login_required
 def create_user(request):
@@ -87,9 +90,9 @@ def create_user(request):
             role=role,
             phone=request.POST.get('phone', ''),
         )
-        # If lecturer — create profile and assign courses
         if role == 'lecturer':
             from students.models import Lecturer, Department
+            from courses.models import Course
             dept_id = request.POST.get('department')
             dept = Department.objects.filter(id=dept_id).first() if dept_id else None
             lecturer_id = f"LEC{user.id:04d}"
@@ -100,7 +103,6 @@ def create_user(request):
                 department=dept,
                 specialization=request.POST.get('specialization', ''),
             )
-            # Assign courses to lecturer
             course_ids = request.POST.getlist('courses')
             for cid in course_ids:
                 course = Course.objects.filter(id=cid).first()
@@ -110,12 +112,13 @@ def create_user(request):
         messages.success(request, f'User {username} created successfully.')
         return redirect('users_list')
     return redirect('users_list')
-     @login_required
+
+
+@login_required
 def edit_user(request, pk):
     if request.user.role != 'admin':
         messages.error(request, 'Access denied.')
         return redirect('dashboard')
-    from django.shortcuts import get_object_or_404
     user = get_object_or_404(CustomUser, pk=pk)
     if request.method == 'POST':
         user.first_name = request.POST.get('first_name', user.first_name)
@@ -130,12 +133,12 @@ def edit_user(request, pk):
         return redirect('users_list')
     return render(request, 'accounts/edit_user.html', {'edit_user': user})
 
+
 @login_required
 def delete_user(request, pk):
     if request.user.role != 'admin':
         messages.error(request, 'Access denied.')
         return redirect('dashboard')
-    from django.shortcuts import get_object_or_404
     user = get_object_or_404(CustomUser, pk=pk)
     if request.method == 'POST':
         username = user.username
