@@ -110,3 +110,36 @@ def create_user(request):
         messages.success(request, f'User {username} created successfully.')
         return redirect('users_list')
     return redirect('users_list')
+     @login_required
+def edit_user(request, pk):
+    if request.user.role != 'admin':
+        messages.error(request, 'Access denied.')
+        return redirect('dashboard')
+    from django.shortcuts import get_object_or_404
+    user = get_object_or_404(CustomUser, pk=pk)
+    if request.method == 'POST':
+        user.first_name = request.POST.get('first_name', user.first_name)
+        user.last_name = request.POST.get('last_name', user.last_name)
+        user.email = request.POST.get('email', user.email)
+        user.role = request.POST.get('role', user.role)
+        new_password = request.POST.get('new_password', '')
+        if new_password:
+            user.set_password(new_password)
+        user.save()
+        messages.success(request, f'User {user.username} updated successfully.')
+        return redirect('users_list')
+    return render(request, 'accounts/edit_user.html', {'edit_user': user})
+
+@login_required
+def delete_user(request, pk):
+    if request.user.role != 'admin':
+        messages.error(request, 'Access denied.')
+        return redirect('dashboard')
+    from django.shortcuts import get_object_or_404
+    user = get_object_or_404(CustomUser, pk=pk)
+    if request.method == 'POST':
+        username = user.username
+        user.delete()
+        messages.success(request, f'User {username} deleted successfully.')
+        return redirect('users_list')
+    return render(request, 'accounts/delete_user.html', {'edit_user': user})
