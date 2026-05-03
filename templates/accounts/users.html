@@ -27,7 +27,13 @@
             {% else %}<span class="badge badge-navy">Student</span>{% endif %}
           </td>
           <td>{% if u.is_active %}<span class="badge badge-success">Active</span>{% else %}<span class="badge badge-danger">Inactive</span>{% endif %}</td>
-        </tr>
+          <td>
+           <a href="{% url 'edit_user' u.pk %}" class="btn btn-navy btn-sm"><i class="fas fa-edit"></i> Edit</a>
+            {% if u.pk != request.user.pk %}
+            <a href="{% url 'delete_user' u.pk %}" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></a>
+            {% endif %}
+          </td>
+          </tr>
         {% empty %}
         <tr><td colspan="6" style="text-align:center; padding:30px; color:#aaa;">No users found</td></tr>
         {% endfor %}
