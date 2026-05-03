@@ -59,7 +59,11 @@ def users_list(request):
         messages.error(request, 'Access denied.')
         return redirect('dashboard')
     users = CustomUser.objects.all().order_by('role', 'username')
-    courses = Course.objects.filter(is_active=True)
+    try:
+        from courses.models import Course
+        courses = Course.objects.filter(is_active=True)
+    except Exception:
+        courses = []
     return render(request, 'accounts/users.html', {'users': users, 'courses': courses})
 
 @login_required

@@ -3,17 +3,19 @@
 {% block content %}
 <div class="page-header">
   <div><h1><i class="fas fa-wallet"></i> Fee Payments</h1><p>Student fee payment status and records</p></div>
-  <a href="{% url 'record_payment' %}" class="btn btn-gold"><i class="fas fa-plus"></i> Record Payment</a>
+  <a href="{% url 'pending_payments' %}" class="btn btn-gold"><i class="fas fa-clock"></i> Pending Payments {% if pending_count > 0 %}({{ pending_count }}){% endif %}</a>
 </div>
 <div class="card mb-4">
   <div class="card-body" style="padding:16px;">
     <form method="get" style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
       <input type="text" name="search" value="{{ search }}" class="form-control" placeholder="Search student..." style="width:200px;">
-      <select name="status" class="form-control" style="width:150px;" onchange="this.form.submit()">
+      <select name="status" class="form-control" style="width:160px;" onchange="this.form.submit()">
         <option value="all" {% if filter_status == 'all' %}selected{% endif %}>All Status</option>
-        <option value="Cleared" {% if filter_status == 'Cleared' %}selected{% endif %}>Cleared</option>
-        <option value="Owing" {% if filter_status == 'Owing' %}selected{% endif %}>Owing</option>
-        <option value="Not Paid" {% if filter_status == 'Not Paid' %}selected{% endif %}>Not Paid</option>
+        <option value="Exam Cleared" {% if filter_status == 'Exam Cleared' %}selected{% endif %}>Exam Cleared</option>
+        <option value="CAT 2 Cleared" {% if filter_status == 'CAT 2 Cleared' %}selected{% endif %}>CAT 2 Cleared</option>
+        <option value="CAT 1 Cleared" {% if filter_status == 'CAT 1 Cleared' %}selected{% endif %}>CAT 1 Cleared</option>
+        <option value="Enrolled" {% if filter_status == 'Enrolled' %}selected{% endif %}>Enrolled</option>
+        <option value="Not Enrolled" {% if filter_status == 'Not Enrolled' %}selected{% endif %}>Not Enrolled</option>
       </select>
       <button type="submit" class="btn btn-navy"><i class="fas fa-search"></i> Search</button>
       <a href="{% url 'fees_list' %}" class="btn btn-gold"><i class="fas fa-times"></i> Clear</a>
@@ -25,7 +27,7 @@
   <div class="table-wrapper">
     <table>
       <thead>
-        <tr><th>#</th><th>Student ID</th><th>Name</th><th>Program</th><th>Total Paid</th><th>Balance</th><th>Payments</th><th>Status</th><th>Action</th></tr>
+        <tr><th>#</th><th>Student ID</th><th>Name</th><th>Program</th><th>Total Paid</th><th>Balance</th><th>%</th><th>Status</th><th>Action</th></tr>
       </thead>
       <tbody>
         {% for item in student_data %}
@@ -34,20 +36,24 @@
           <td><span class="badge badge-navy">{{ item.student.student_id }}</span></td>
           <td><strong>{{ item.student.full_name }}</strong></td>
           <td style="font-size:12px; color:#aaa;">{{ item.student.program }}</td>
-          <td style="color:var(--success); font-weight:600;">UGX {{ item.total_paid|floatformat:0 }}</td>
-          <td style="color:var(--danger); font-weight:600;">UGX {{ item.balance|floatformat:0 }}</td>
-          <td>{{ item.payment_count }}</td>
+          <td style="color:var(--success); font-weight:600;">{{ item.student.currency }} {{ item.total_paid|floatformat:0 }}</td>
+          <td style="color:var(--danger); font-weight:600;">{{ item.student.currency }} {{ item.balance|floatformat:0 }}</td>
+          <td><strong>{{ item.percentage }}%</strong></td>
           <td>
-            {% if item.status == 'Cleared' %}
-            <span class="badge badge-success"><i class="fas fa-check"></i> Cleared</span>
-            {% elif item.status == 'Owing' %}
-            <span class="badge badge-warning"><i class="fas fa-exclamation-triangle"></i> Owing</span>
+            {% if item.status == 'Exam Cleared' %}
+            <span class="badge badge-success"><i class="fas fa-check"></i> Exam Cleared</span>
+            {% elif item.status == 'CAT 2 Cleared' %}
+            <span class="badge badge-success"><i class="fas fa-check"></i> CAT 2 Cleared</span>
+            {% elif item.status == 'CAT 1 Cleared' %}
+            <span class="badge badge-warning"><i class="fas fa-check"></i> CAT 1 Cleared</span>
+            {% elif item.status == 'Enrolled' %}
+            <span class="badge badge-navy"><i class="fas fa-user-check"></i> Enrolled</span>
             {% else %}
-            <span class="badge badge-danger"><i class="fas fa-times"></i> Not Paid</span>
+            <span class="badge badge-danger"><i class="fas fa-times"></i> Not Enrolled</span>
             {% endif %}
           </td>
           <td>
-            <a href="{% url 'pending_payments' %}" class="btn btn-gold btn-sm"><i class="fas fa-clock"></i> View Pending</a>
+            <a href="{% url 'pending_payments' %}" class="btn btn-gold btn-sm"><i class="fas fa-clock"></i> Pending</a>
           </td>
         </tr>
         {% empty %}
@@ -57,4 +63,4 @@
     </table>
   </div>
 </div>
-{% endblock %}
+{% endblock %}S
