@@ -98,11 +98,11 @@
         <div class="form-group">
           <label class="form-label">Assign Courses</label>
           <div style="max-height:180px; overflow-y:auto; border:2px solid #e0e4ef; border-radius:10px; padding:10px;">
-            {% for course in courses %}
-            <label style="display:flex; align-items:center; gap:8px; padding:6px; cursor:pointer; border-radius:6px;" onmouseover="this.style.background='#f0f2f8'" onmouseout="this.style.background='transparent'">
+             {% for course in courses %}
+             <label style="display:flex; ...">
               <input type="checkbox" name="courses" value="{{ course.id }}">
-              <span style="font-size:13px;"><strong>{{ course.course_code }}</strong> — {{ course.name }}</span>
-            </label>
+              <span><strong>{{ course.course_code }}</strong> — {{ course.name }}</span>
+             </label>
             {% empty %}
             <p style="color:#aaa; font-size:13px; text-align:center; padding:10px;">No courses available. Create courses first.</p>
             {% endfor %}
