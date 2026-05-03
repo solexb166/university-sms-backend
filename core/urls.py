@@ -64,4 +64,6 @@ urlpatterns = [
     # Users
     path('users/', auth_views.users_list, name='users_list'),
     path('users/create/', auth_views.create_user, name='create_user'),
+    path('users/<int:pk>/edit/', auth_views.edit_user, name='edit_user'),
+    path('users/<int:pk>/delete/', auth_views.delete_user, name='delete_user'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
