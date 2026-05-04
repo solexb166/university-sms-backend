@@ -6,6 +6,14 @@ from courses.models import Course, Enrollment
 from fees.models import FeePayment, PaymentSubmission
 from results.models import Result
 
+def get_fees_display():
+    ugx = FeePayment.objects.filter(student__currency='UGX').aggregate(t=Sum('amount_paid'))['t'] or 0
+    usd = FeePayment.objects.filter(student__currency='USD').aggregate(t=Sum('amount_paid'))['t'] or 0
+    parts = []
+    if ugx: parts.append(f"UGX {ugx:,.0f}")
+    if usd: parts.append(f"USD {usd:,.0f}")
+    return " + ".join(parts) if parts else "UGX 0"
+
 @login_required
 def dashboard(request):
     user = request.user
@@ -22,8 +30,7 @@ def dashboard(request):
         context['total_students'] = Student.objects.filter(is_active=True).count()
         context['total_courses'] = Course.objects.filter(is_active=True).count()
         context['total_enrollments'] = Enrollment.objects.filter(status='enrolled').count()
-        total = FeePayment.objects.aggregate(t=Sum('amount_paid'))['t'] or 0
-        context['total_fees'] = f"{total:,.0f}"
+        context['total_fees'] = get_fees_display()
         context['pending_payments'] = PaymentSubmission.objects.filter(status='pending').count()
 
     elif user.role == 'registry':
@@ -46,8 +53,7 @@ def dashboard(request):
         context['cat1_cleared'] = cat1
         context['enrolled'] = enrolled
         context['not_enrolled'] = not_enrolled
-        total = FeePayment.objects.aggregate(t=Sum('amount_paid'))['t'] or 0
-        context['total_fees'] = f"{total:,.0f}"
+        context['total_fees'] = get_fees_display()
         context['pending_payments'] = PaymentSubmission.objects.filter(status='pending').count()
 
     elif user.role == 'lecturer':
@@ -75,7 +81,6 @@ def reports(request):
     total_students = Student.objects.filter(is_active=True).count()
     total_courses = Course.objects.filter(is_active=True).count()
     total_enrollments = Enrollment.objects.filter(status='enrolled').count()
-    total_fees = FeePayment.objects.aggregate(t=Sum('amount_paid'))['t'] or 0
     total_results = Result.objects.count()
     avg_marks = Result.objects.aggregate(avg=Avg('marks'))['avg'] or 0
     grade_dist = Result.objects.values('grade').annotate(count=Count('grade')).order_by('grade')
@@ -83,7 +88,7 @@ def reports(request):
         'total_students': total_students,
         'total_courses': total_courses,
         'total_enrollments': total_enrollments,
-        'total_fees': f"{total_fees:,.0f}",
+        'total_fees': get_fees_display(),
         'total_results': total_results,
         'avg_marks': f"{avg_marks:.1f}",
         'grade_dist': grade_dist,
