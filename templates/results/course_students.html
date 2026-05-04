@@ -4,56 +4,46 @@
 <div class="page-header">
   <div>
     <h1><i class="fas fa-users"></i> {{ course.name }}</h1>
-    <p>{{ course.course_code }} &bull; Semester {{ course.semester_in_program }} &bull; {{ enrollments.count }} enrolled students</p>
+    <p>{{ course.course_code }} &bull; Semester {{ course.semester_in_program }} &bull; {{ enrollments.count }} enrolled</p>
   </div>
   <a href="{% url 'results_list' %}" class="btn btn-gold"><i class="fas fa-arrow-left"></i> Back</a>
 </div>
-
 <div class="card">
   <div class="card-header"><h5><i class="fas fa-list"></i> Enrolled Students</h5></div>
   <div class="table-wrapper">
     <table>
       <thead>
-        <tr><th>#</th><th>Student ID</th><th>Student Name</th><th>Program</th><th>Marks</th><th>Grade</th><th>Action</th></tr>
+        <tr><th>#</th><th>Student ID</th><th>Name</th><th>Program</th><th>Marks</th><th>Grade</th><th>Action</th></tr>
       </thead>
       <tbody>
         {% for e in enrollments %}
-        {% with result=results_dict|default:None %}
         <tr>
           <td>{{ forloop.counter }}</td>
           <td><span class="badge badge-navy">{{ e.student.student_id }}</span></td>
           <td><strong>{{ e.student.full_name }}</strong></td>
           <td style="font-size:12px; color:#aaa;">{{ e.student.program }}</td>
-          {% if e.student.id in results_dict %}
-          <td><strong>{{ results_dict[e.student.id].marks }}</strong></td>
-          <td><span class="badge badge-success">{{ results_dict[e.student.id].grade }}</span></td>
-          {% else %}
           <td style="color:#aaa;">Not entered</td>
           <td style="color:#aaa;">-</td>
-          {% endif %}
           <td>
             <button onclick="setStudent({{ e.student.id }}, '{{ e.student.full_name }}')" class="btn btn-gold btn-sm">
               <i class="fas fa-edit"></i> Enter Result
             </button>
           </td>
         </tr>
-        {% endwith %}
         {% empty %}
-        <tr><td colspan="7" style="text-align:center; padding:30px; color:#aaa;">No students enrolled in this course yet</td></tr>
+        <tr><td colspan="7" style="text-align:center; padding:30px; color:#aaa;">No students enrolled yet</td></tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
 </div>
-
-<!-- Enter Result Modal -->
 <div id="resultModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
   <div style="background:white; border-radius:16px; padding:32px; width:90%; max-width:400px;">
     <h3 style="color:var(--navy); margin-bottom:20px;"><i class="fas fa-edit"></i> Enter Result</h3>
     <form method="post" action="{% url 'record_result' %}">
       {% csrf_token %}
       <input type="hidden" name="course" value="{{ course.id }}">
-      <input type="hidden" name="next" value="course_students_view">
+      <input type="hidden" name="next" value="results_list">
       <input type="hidden" name="student" id="modalStudentId">
       <div class="form-group">
         <label class="form-label">Student</label>
@@ -68,17 +58,12 @@
         <input type="text" name="remarks" class="form-control" placeholder="e.g. Good performance">
       </div>
       <div style="display:flex; gap:10px; margin-top:20px;">
-        <button type="submit" class="btn btn-navy" style="flex:1; justify-content:center;">
-          <i class="fas fa-save"></i> Save Result
-        </button>
-        <button type="button" onclick="closeModal()" class="btn btn-gold" style="flex:1; justify-content:center;">
-          Cancel
-        </button>
+        <button type="submit" class="btn btn-navy" style="flex:1; justify-content:center;"><i class="fas fa-save"></i> Save Result</button>
+        <button type="button" onclick="closeModal()" class="btn btn-gold" style="flex:1; justify-content:center;">Cancel</button>
       </div>
     </form>
   </div>
 </div>
-
 <script>
 function setStudent(id, name) {
   document.getElementById('modalStudentId').value = id;
