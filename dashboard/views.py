@@ -31,7 +31,9 @@ def dashboard(request):
         context['total_courses'] = Course.objects.filter(is_active=True).count()
         context['total_enrollments'] = Enrollment.objects.filter(status='enrolled').count()
         context['total_fees'] = get_fees_display()
-        context['pending_payments'] = PaymentSubmission.objects.filter(status='pending').count()
+        context['pending_payments'] = PaymentSubmission.objects.filter(status='pending').context['ugx_fees'] = FeePayment.objects.filter(student__currency='UGX').aggregate(t=Sum('amount_paid'))['t'] or 0
+        context['ugx_fees'] = FeePayment.objects.filter(student__currency='UGX').aggregate(t=Sum('amount_paid'))['t'] or 0
+        context['usd_fees'] = FeePayment.objects.filter(student__currency='USD').aggregate(t=Sum('amount_paid'))['t'] or 0
 
     elif user.role == 'registry':
         context['total_students'] = Student.objects.filter(is_active=True).count()
@@ -55,6 +57,8 @@ def dashboard(request):
         context['not_enrolled'] = not_enrolled
         context['total_fees'] = get_fees_display()
         context['pending_payments'] = PaymentSubmission.objects.filter(status='pending').count()
+        context['ugx_fees'] = FeePayment.objects.filter(student__currency='UGX').aggregate(t=Sum('amount_paid'))['t'] or 0
+        context['usd_fees'] = FeePayment.objects.filter(student__currency='USD').aggregate(t=Sum('amount_paid'))['t'] or 0
 
     elif user.role == 'lecturer':
         try:
