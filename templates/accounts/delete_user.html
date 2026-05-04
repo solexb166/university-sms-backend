@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Delete User{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1><i class="fas fa-trash"></i> Delete User</h1><p>This action cannot be undone</p></div>
+  <a href="{% url 'users_list' %}" class="btn btn-gold"><i class="fas fa-arrow-left"></i> Back</a>
+</div>
+<div class="card" style="max-width:500px;">
+  <div class="card-body" style="text-align:center; padding:40px;">
+    <i class="fas fa-exclamation-triangle" style="font-size:48px; color:var(--danger);"></i>
+    <h3 style="margin-top:16px; color:var(--navy);">Are you sure?</h3>
+    <p style="color:#aaa; margin-top:8px;">You are about to delete <strong>{{ edit_user.get_full_name|default:edit_user.username }}</strong> (@{{ edit_user.username }}). This cannot be undone.</p>
+    <form method="post" style="margin-top:24px;">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger" style="padding:12px 32px; font-size:15px;">
+        <i class="fas fa-trash"></i> Yes Delete User
+      </button>
+      <a href="{% url 'users_list' %}" class="btn btn-gold" style="padding:12px 32px; font-size:15px; margin-left:10px;">Cancel</a>
+    </form>
+  </div>
+</div>
+{% endblock %}
