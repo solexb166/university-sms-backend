@@ -26,10 +26,26 @@
     <div class="stat-icon" style="background:rgba(230,81,0,0.1);"><i class="fas fa-clipboard-list" style="color:var(--warning); font-size:22px;"></i></div>
     <div class="stat-info"><div class="value" style="color:var(--warning)">{{ total_enrollments }}</div><div class="label">Enrollments</div></div>
   </div>
+</div>
+<div class="grid-2 mb-4">
+  {% if ugx_fees > 0 %}
   <div class="stat-card">
     <div class="stat-icon" style="background:rgba(46,125,50,0.1);"><i class="fas fa-wallet" style="color:var(--success); font-size:22px;"></i></div>
-    <div class="stat-info"><div class="value" style="color:var(--success)">UGX {{ total_fees }}</div><div class="label">Fees Collected</div></div>
+    <div class="stat-info"><div class="value" style="color:var(--success)">UGX {{ ugx_fees|floatformat:0 }}</div><div class="label">UGX Fees Collected</div></div>
   </div>
+  {% endif %}
+  {% if usd_fees > 0 %}
+  <div class="stat-card">
+    <div class="stat-icon" style="background:rgba(21,101,192,0.1);"><i class="fas fa-dollar-sign" style="color:#1565C0; font-size:22px;"></i></div>
+    <div class="stat-info"><div class="value" style="color:#1565C0">USD {{ usd_fees|floatformat:0 }}</div><div class="label">USD Fees Collected</div></div>
+  </div>
+  {% endif %}
+  {% if ugx_fees == 0 and usd_fees == 0 %}
+  <div class="stat-card">
+    <div class="stat-icon" style="background:rgba(46,125,50,0.1);"><i class="fas fa-wallet" style="color:var(--success); font-size:22px;"></i></div>
+    <div class="stat-info"><div class="value" style="color:var(--success)">0</div><div class="label">Fees Collected</div></div>
+  </div>
+  {% endif %}
 </div>
 {% if pending_payments > 0 %}
 <div class="alert alert-warning">
@@ -79,15 +95,29 @@
     <div class="stat-info"><div class="value" style="color:var(--danger)">{{ not_enrolled }}</div><div class="label">Not Enrolled</div></div>
   </div>
 </div>
-<div class="grid-2 mb-4">
+<div class="grid-3 mb-4">
   <div class="stat-card">
-    <div class="stat-icon" style="background:rgba(21,101,192,0.1);"><i class="fas fa-wallet" style="color:#1565C0; font-size:22px;"></i></div>
+    <div class="stat-icon" style="background:rgba(21,101,192,0.1);"><i class="fas fa-user-check" style="color:#1565C0; font-size:22px;"></i></div>
     <div class="stat-info"><div class="value" style="color:#1565C0">{{ enrolled }}</div><div class="label">Enrolled (30%+)</div></div>
   </div>
+  {% if ugx_fees > 0 %}
   <div class="stat-card">
-    <div class="stat-icon" style="background:rgba(46,125,50,0.1);"><i class="fas fa-money-bill-wave" style="color:var(--success); font-size:22px;"></i></div>
-    <div class="stat-info"><div class="value" style="color:var(--success)">UGX {{ total_fees }}</div><div class="label">Total Collected</div></div>
+    <div class="stat-icon" style="background:rgba(46,125,50,0.1);"><i class="fas fa-wallet" style="color:var(--success); font-size:22px;"></i></div>
+    <div class="stat-info"><div class="value" style="color:var(--success)">UGX {{ ugx_fees|floatformat:0 }}</div><div class="label">UGX Collected</div></div>
   </div>
+  {% endif %}
+  {% if usd_fees > 0 %}
+  <div class="stat-card">
+    <div class="stat-icon" style="background:rgba(21,101,192,0.1);"><i class="fas fa-dollar-sign" style="color:#1565C0; font-size:22px;"></i></div>
+    <div class="stat-info"><div class="value" style="color:#1565C0">USD {{ usd_fees|floatformat:0 }}</div><div class="label">USD Collected</div></div>
+  </div>
+  {% endif %}
+  {% if ugx_fees == 0 and usd_fees == 0 %}
+  <div class="stat-card">
+    <div class="stat-icon" style="background:rgba(46,125,50,0.1);"><i class="fas fa-wallet" style="color:var(--success); font-size:22px;"></i></div>
+    <div class="stat-info"><div class="value" style="color:var(--success)">0</div><div class="label">Total Collected</div></div>
+  </div>
+  {% endif %}
 </div>
 {% endif %}
 
@@ -117,7 +147,7 @@
       <span class="badge badge-navy">{{ course.enrolled_count }} students</span>
     </div>
     <div class="module-title">{{ course.name }}</div>
-    <div class="module-desc">{{ course.department.name|default:"" }} &bull; Year {{ course.year }} Sem {{ course.semester }}</div>
+    <div class="module-desc">{{ course.department.name|default:"" }} &bull; Semester {{ course.semester_in_program }}</div>
   </a>
   {% endfor %}
 </div>
@@ -158,7 +188,7 @@
   {% endif %}
   {% if user.role == 'admin' or user.role == 'finance' %}
   <a href="{% url 'pending_payments' %}" class="module-card" style="border-left-color:#C62828;">
-    <div class="module-icon" style="background:rgba(198,40,40,0.1);">
+    <div class="module-icon" style="background:rgba(198,40,40,0.1); position:relative;">
       <i class="fas fa-clock" style="color:var(--danger); font-size:22px;"></i>
       {% if pending_payments > 0 %}
       <span style="position:absolute; top:-4px; right:-4px; background:var(--danger); color:white; border-radius:50%; width:20px; height:20px; font-size:11px; display:flex; align-items:center; justify-content:center; font-weight:700;">{{ pending_payments }}</span>
