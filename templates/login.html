@@ -116,16 +116,6 @@
     }
     @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
 
-    .left-stats {
-      display: flex; gap: 24px; position: relative; z-index: 2;
-      opacity: 0; animation: fadeUp 0.6s ease 1.8s forwards;
-      margin-top: 16px; margin-bottom: 8px;
-    }
-    .stat-item { display: flex; flex-direction: column; gap: 2px; }
-    .stat-num { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 700; color: white; }
-    .stat-num.gold { color: var(--gold); }
-    .stat-label { font-size: 9px; color: rgba(255,255,255,0.4); letter-spacing: 1.5px; text-transform: uppercase; }
-    .stat-divider { width: 1px; background: rgba(255,255,255,0.1); align-self: stretch; margin: 4px 0; }
 
     .left-bottom { position: relative; z-index: 2; opacity: 0; animation: fadeUp 0.6s ease 1.9s forwards; }
     .left-bottom p { font-size: 11px; color: rgba(255,255,255,0.2); letter-spacing: 1px; }
@@ -322,26 +312,8 @@
       <p class="hero-tagline">Success begins at Cavendish.</p>
     </div>
 
-    <div>
-      <div class="left-stats">
-        <div class="stat-item">
-          <span class="stat-num">6</span>
-          <span class="stat-label">User Roles</span>
-        </div>
-        <div class="stat-divider"></div>
-        <div class="stat-item">
-          <span class="stat-num">9</span>
-          <span class="stat-label">Modules</span>
-        </div>
-        <div class="stat-divider"></div>
-        <div class="stat-item">
-          <span class="stat-num gold">AI</span>
-          <span class="stat-label">Powered</span>
-        </div>
-      </div>
-      <div class="left-bottom">
-        <p>CAVENDISH UNIVERSITY UGANDA &copy; {{ current_year }}</p>
-      </div>
+    <div class="left-bottom">
+      <p>CAVENDISH UNIVERSITY UGANDA &copy; {{ current_year }}</p>
     </div>
   </div>
 
