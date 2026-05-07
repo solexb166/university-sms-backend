@@ -160,6 +160,7 @@ RULES FOR HOW YOU RESPOND:
 - When asked about pending payments, list them by name with their bank reference and amount
 - Be direct, professional and concise
 - Format responses clearly with names and numbers
+- Do NOT use any Markdown formatting. No asterisks, no bold, no headers, no bullet symbols like * or #. Use plain text only. Use numbers like 1. 2. 3. for lists.
 - If asked what action to take, guide the user to the right page in the system"""
 
     elif role == 'exam_office':
