@@ -1,4 +1,8 @@
 import json
+import os
+import urllib.request
+import urllib.error
+import traceback
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
@@ -7,16 +11,40 @@ from students.models import Student
 from fees.models import FeePayment
 from courses.models import Enrollment, Course, ExamDocket
 from results.models import Result
-import urllib.request
-import urllib.error
 
 
 def get_finance_data():
     """Collect all finance data to send to AI"""
     students = Student.objects.filter(is_active=True).select_related('department')
+
+    from fees.models import PaymentSubmission
+    pending_submissions = PaymentSubmission.objects.filter(status='pending').select_related('student')
+    pending_list = []
+    for sub in pending_submissions:
+        pending_list.append({
+            'student_name': sub.student.full_name,
+            'student_id': sub.student.student_id,
+            'bank': sub.bank_name,
+            'reference': sub.bank_reference,
+            'amount': float(sub.amount_paid),
+            'currency': sub.student.currency,
+            'submitted': str(sub.date_submitted),
+        })
+
+    ugx_total = FeePayment.objects.filter(
+        student__currency='UGX'
+    ).aggregate(t=Sum('amount_paid'))['t'] or 0
+
+    usd_total = FeePayment.objects.filter(
+        student__currency='USD'
+    ).aggregate(t=Sum('amount_paid'))['t'] or 0
+
     data = {
         'total_students': students.count(),
-        'total_collected': float(FeePayment.objects.aggregate(t=Sum('amount_paid'))['t'] or 0),
+        'total_collected_ugx': float(ugx_total),
+        'total_collected_usd': float(usd_total),
+        'pending_submissions': len(pending_list),
+        'pending_list': pending_list,
         'clearance_summary': {
             'exam_cleared': 0,
             'cat2_cleared': 0,
@@ -182,9 +210,15 @@ def chatbot_message(request):
         if not user_message:
             return JsonResponse({'error': 'Empty message'}, status=400)
 
+        # Get API key from environment
+        api_key = os.environ.get('ANTHROPIC_API_KEY', '')
+        if not api_key:
+            print("CHATBOT ERROR: ANTHROPIC_API_KEY is not set in environment variables")
+            return JsonResponse({'error': 'API key not configured'}, status=500)
+
         # Get real data based on role
         role = request.user.role
-        if role == 'finance' or role == 'admin':
+        if role in ['finance', 'admin']:
             data = get_finance_data()
         else:
             data = get_exam_office_data()
@@ -211,6 +245,7 @@ def chatbot_message(request):
             headers={
                 'Content-Type': 'application/json',
                 'anthropic-version': '2023-06-01',
+                'x-api-key': api_key,  # ✅ API KEY ADDED HERE
             },
             method='POST'
         )
@@ -221,5 +256,15 @@ def chatbot_message(request):
 
         return JsonResponse({'response': ai_response})
 
+    except urllib.error.HTTPError as e:
+        error_body = e.read().decode('utf-8')
+        print(f"CHATBOT HTTP ERROR {e.code}: {error_body}")
+        return JsonResponse({'error': f'API error {e.code}: {error_body}'}, status=500)
+
+    except urllib.error.URLError as e:
+        print(f"CHATBOT URL ERROR: {e.reason}")
+        return JsonResponse({'error': f'Connection error: {e.reason}'}, status=500)
+
     except Exception as e:
+        print(f"CHATBOT ERROR: {traceback.format_exc()}")
         return JsonResponse({'error': str(e)}, status=500)
